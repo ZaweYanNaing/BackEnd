@@ -99,8 +99,8 @@ BEfood/
 │   └── footer.php           # HTML footer template
 ├── pages/
 │   ├── home.php             # Homepage
-│   ├── login.php            # User login
-│   ├── register.php         # User registration
+│   ├── login_process.php    # Login API endpoint
+│   ├── register_process.php # Registration API endpoint
 │   ├── profile.php          # User profile
 │   ├── edit-profile.php     # Edit profile
 │   ├── recipes.php          # Recipe listing

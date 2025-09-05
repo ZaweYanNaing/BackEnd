@@ -23,10 +23,12 @@ switch ($page) {
         include 'pages/about.php';
         break;
     case 'login':
-        include 'pages/login.php';
+        // Redirect to home page since login is now handled by popup
+        redirect('index.php');
         break;
     case 'register':
-        include 'pages/register.php';
+        // Redirect to home page since registration is now handled by popup
+        redirect('index.php');
         break;
     case 'logout':
         include 'pages/logout.php';
