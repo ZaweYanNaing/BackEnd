@@ -220,46 +220,53 @@ function createRecipe($data) {
     }
 }
 
-function updateRecipe($id, $data) {
+function updateRecipe($data) {
     global $db;
     
     try {
         $db->beginTransaction();
         
         // Update recipe
-        $stmt = $db->prepare("UPDATE recipes SET title = ?, description = ?, instructions = ?, cooking_time = ?, difficulty = ?, servings = ?, image_url = ?, cuisine_type_id = ?, updated_at = NOW() WHERE id = ?");
+        $stmt = $db->prepare("UPDATE recipes SET title = ?, description = ?, instructions = ?, cooking_time = ?, difficulty = ?, image_url = ?, servings = ?, cuisine_type_id = ?, updated_at = NOW() WHERE id = ?");
         $stmt->execute([
             $data['title'],
             $data['description'] ?? '',
             $data['instructions'],
             $data['cooking_time'] ?? null,
             $data['difficulty'] ?? 'Medium',
-            $data['servings'] ?? null,
             $data['image_url'] ?? null,
+            $data['servings'] ?? null,
             $data['cuisine_type_id'] ?? null,
-            $id
+            $data['id']
         ]);
         
-        // Update categories
-        $stmt = $db->prepare("DELETE FROM recipe_categories WHERE recipe_id = ?");
-        $stmt->execute([$id]);
+        $recipeId = $data['id'];
         
+        // Remove existing categories
+        $stmt = $db->prepare("DELETE FROM recipe_categories WHERE recipe_id = ?");
+        $stmt->execute([$recipeId]);
+        
+        // Add new categories
         if (!empty($data['categories'])) {
             foreach ($data['categories'] as $categoryId) {
                 $stmt = $db->prepare("INSERT INTO recipe_categories (recipe_id, category_id) VALUES (?, ?)");
-                $stmt->execute([$id, $categoryId]);
+                $stmt->execute([$recipeId, $categoryId]);
             }
         }
         
-        // Update ingredients
+        // Remove existing ingredients
         $stmt = $db->prepare("DELETE FROM recipe_ingredients WHERE recipe_id = ?");
-        $stmt->execute([$id]);
+        $stmt->execute([$recipeId]);
         
+        // Add new ingredients
         if (!empty($data['ingredients'])) {
             foreach ($data['ingredients'] as $ingredient) {
+                // Get or create ingredient
                 $ingredientId = getOrCreateIngredient($ingredient['name']);
+                
+                // Insert recipe-ingredient relationship
                 $stmt = $db->prepare("INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit) VALUES (?, ?, ?, ?)");
-                $stmt->execute([$id, $ingredientId, $ingredient['quantity'], $ingredient['unit'] ?? '']);
+                $stmt->execute([$recipeId, $ingredientId, $ingredient['quantity'], $ingredient['unit'] ?? '']);
             }
         }
         
@@ -563,7 +570,7 @@ function isLoggedIn() {
 
 function requireLogin() {
     if (!isLoggedIn()) {
-        redirect('index.php?page=login');
+        redirect('index.php');
     }
 }
 

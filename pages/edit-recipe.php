@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'Create Recipe - FoodFusion';
+$pageTitle = 'Edit Recipe - FoodFusion';
 include 'includes/header.php';
 
 // Require login
@@ -7,6 +7,23 @@ requireLogin();
 
 $error = '';
 $success = '';
+
+// Get recipe ID
+$recipeId = $_GET['id'] ?? 0;
+if (!$recipeId) {
+    redirect('index.php?page=recipes');
+}
+
+// Get recipe details
+$recipe = getRecipeById($recipeId);
+if (!$recipe) {
+    redirect('index.php?page=recipes');
+}
+
+// Check if user owns this recipe
+if ($recipe['user_id'] != $user['id']) {
+    redirect('index.php?page=recipes');
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = sanitizeInput($_POST['title'] ?? '');
@@ -20,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $ingredients = $_POST['ingredients'] ?? [];
     
     // Handle image upload
-    $imageUrl = '';
+    $imageUrl = $recipe['image_url']; // Keep existing image by default
     if (isset($_FILES['recipe_image']) && $_FILES['recipe_image']['error'] === UPLOAD_ERR_OK) {
         $file = $_FILES['recipe_image'];
         
@@ -38,6 +55,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $uploadPath = __DIR__ . '/../uploads/' . $filename;
                 
                 if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+                    // Delete old image if it exists
+                    if ($recipe['image_url'] && file_exists(__DIR__ . '/../uploads/' . $recipe['image_url'])) {
+                        unlink(__DIR__ . '/../uploads/' . $recipe['image_url']);
+                    }
                     $imageUrl = $filename;
                 }
             } else {
@@ -93,8 +114,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             }
             
-            // Create recipe data
+            // Update recipe data
             $recipeData = [
+                'id' => $recipeId,
                 'title' => $title,
                 'description' => $description,
                 'instructions' => $instructions,
@@ -104,19 +126,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'cuisine_type_id' => $cuisineTypeId,
                 'categories' => array_map('intval', $categories),
                 'ingredients' => $processedIngredients,
-                'user_id' => $user['id'],
                 'image_url' => $imageUrl
             ];
             
-            $recipeId = createRecipe($recipeData);
-            
-            if ($recipeId) {
-                $_SESSION['toast_message'] = 'Recipe created successfully!';
+            if (updateRecipe($recipeData)) {
+                $_SESSION['toast_message'] = 'Recipe updated successfully!';
                 $_SESSION['toast_type'] = 'success';
                 echo '<script>location.assign("index.php?page=recipes");</script>';
                 exit;
             } else {
-                $error = 'Failed to create recipe. Please try again.';
+                $error = 'Failed to update recipe. Please try again.';
             }
         }
     }
@@ -125,12 +144,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // Get categories and cuisine types for form
 $categories = getCategories();
 $cuisineTypes = getCuisineTypes();
+
+// Get current recipe ingredients
+$currentIngredients = [];
+try {
+    global $db;
+    $stmt = $db->prepare("SELECT i.name, ri.quantity, ri.unit FROM recipe_ingredients ri 
+                         JOIN ingredients i ON ri.ingredient_id = i.id 
+                         WHERE ri.recipe_id = ? ORDER BY ri.id");
+    $stmt->execute([$recipeId]);
+    $currentIngredients = $stmt->fetchAll();
+} catch (Exception $e) {
+    // Handle error silently
+}
+
+// Get current recipe categories
+$currentCategories = [];
+try {
+    global $db;
+    $stmt = $db->prepare("SELECT category_id FROM recipe_categories WHERE recipe_id = ?");
+    $stmt->execute([$recipeId]);
+    $currentCategories = array_column($stmt->fetchAll(), 'category_id');
+} catch (Exception $e) {
+    // Handle error silently
+}
 ?>
 
 <div class="min-h-screen bg-gray-50">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="bg-white rounded-lg shadow-md p-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-8">Create New Recipe</h1>
+            <h1 class="text-3xl font-bold text-gray-900 mb-8">Edit Recipe</h1>
             
             <?php if ($error): ?>
             <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md mb-6">
@@ -151,7 +194,7 @@ $cuisineTypes = getCuisineTypes();
                             Recipe Title *
                         </label>
                         <input type="text" id="title" name="title" required 
-                               value="<?php echo htmlspecialchars($_POST['title'] ?? ''); ?>"
+                               value="<?php echo htmlspecialchars($recipe['title']); ?>"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
                     </div>
                     
@@ -161,7 +204,7 @@ $cuisineTypes = getCuisineTypes();
                         </label>
                         <textarea id="description" name="description" rows="3"
                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                  placeholder="Describe your recipe..."><?php echo htmlspecialchars($_POST['description'] ?? ''); ?></textarea>
+                                  placeholder="Describe your recipe..."><?php echo htmlspecialchars($recipe['description']); ?></textarea>
                     </div>
                     
                     <!-- Recipe Image Upload -->
@@ -171,7 +214,8 @@ $cuisineTypes = getCuisineTypes();
                         </label>
                         <div class="flex items-center space-x-4">
                             <div class="flex-shrink-0">
-                                <img id="image-preview" src="https://via.placeholder.com/200x150/78C841/FFFFFF?text=No+Image" 
+                                <img id="image-preview" 
+                                     src="<?php echo $recipe['image_url'] ? 'uploads/' . $recipe['image_url'] : 'https://via.placeholder.com/200x150/78C841/FFFFFF?text=No+Image'; ?>" 
                                      alt="Recipe preview" class="w-32 h-24 object-cover rounded-lg border border-gray-300">
                             </div>
                             <div class="flex-1">
@@ -188,7 +232,7 @@ $cuisineTypes = getCuisineTypes();
                                 Cooking Time (minutes)
                             </label>
                             <input type="number" id="cooking_time" name="cooking_time" min="1" required
-                                   value="<?php echo htmlspecialchars($_POST['cooking_time'] ?? ''); ?>"
+                                   value="<?php echo htmlspecialchars($recipe['cooking_time'] ?? ''); ?>"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
                         </div>
                         
@@ -198,9 +242,9 @@ $cuisineTypes = getCuisineTypes();
                             </label>
                             <select id="difficulty" name="difficulty"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                <option value="Easy" <?php echo ($_POST['difficulty'] ?? '') == 'Easy' ? 'selected' : ''; ?>>Easy</option>
-                                <option value="Medium" <?php echo ($_POST['difficulty'] ?? 'Medium') == 'Medium' ? 'selected' : ''; ?>>Medium</option>
-                                <option value="Hard" <?php echo ($_POST['difficulty'] ?? '') == 'Hard' ? 'selected' : ''; ?>>Hard</option>
+                                <option value="Easy" <?php echo $recipe['difficulty'] == 'Easy' ? 'selected' : ''; ?>>Easy</option>
+                                <option value="Medium" <?php echo $recipe['difficulty'] == 'Medium' ? 'selected' : ''; ?>>Medium</option>
+                                <option value="Hard" <?php echo $recipe['difficulty'] == 'Hard' ? 'selected' : ''; ?>>Hard</option>
                             </select>
                         </div>
                         
@@ -209,27 +253,8 @@ $cuisineTypes = getCuisineTypes();
                                 Servings
                             </label>
                             <input type="number" id="servings" name="servings" min="1" required
-                                   value="<?php echo htmlspecialchars($_POST['servings'] ?? ''); ?>"
+                                   value="<?php echo htmlspecialchars($recipe['servings'] ?? ''); ?>"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Categories and Cuisine -->
-                <div class="space-y-6">
-                    <h2 class="text-xl font-semibold text-gray-900">Categories & Cuisine</h2>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Categories</label>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                            <?php foreach ($categories as $category): ?>
-                            <label class="flex items-center space-x-2 cursor-pointer">
-                                <input type="checkbox" name="categories[]" value="<?php echo $category['id']; ?>"
-                                       <?php echo in_array($category['id'], $_POST['categories'] ?? []) ? 'checked' : ''; ?>
-                                       class="rounded border-gray-300 text-green-600 focus:ring-green-500">
-                                <span class="text-sm text-gray-700"><?php echo htmlspecialchars($category['name']); ?></span>
-                            </label>
-                            <?php endforeach; ?>
                         </div>
                     </div>
                     
@@ -240,46 +265,91 @@ $cuisineTypes = getCuisineTypes();
                         <select id="cuisine_type" name="cuisine_type"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
                             <option value="">Select Cuisine Type</option>
-                            <?php foreach ($cuisineTypes as $cuisineType): ?>
-                            <option value="<?php echo htmlspecialchars($cuisineType['name']); ?>"
-                                    <?php echo ($_POST['cuisine_type'] ?? '') == $cuisineType['name'] ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($cuisineType['name']); ?>
+                            <?php foreach ($cuisineTypes as $cuisine): ?>
+                            <option value="<?php echo htmlspecialchars($cuisine['name']); ?>" 
+                                    <?php echo $recipe['cuisine_type'] == $cuisine['name'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($cuisine['name']); ?>
                             </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                 </div>
                 
+                <!-- Categories -->
+                <div class="space-y-6">
+                    <h2 class="text-xl font-semibold text-gray-900">Categories</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <?php foreach ($categories as $category): ?>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="categories[]" value="<?php echo $category['id']; ?>"
+                                   <?php echo in_array($category['id'], $currentCategories) ? 'checked' : ''; ?>
+                                   class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700"><?php echo htmlspecialchars($category['name']); ?></span>
+                        </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                
                 <!-- Ingredients -->
                 <div class="space-y-6">
-                    <h2 class="text-xl font-semibold text-gray-900">Ingredients *</h2>
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-semibold text-gray-900">Ingredients</h2>
+                        <button type="button" onclick="addIngredient()" 
+                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-plus mr-1"></i> Add Ingredient
+                        </button>
+                    </div>
                     
-                    <div id="ingredients-container">
-                        <?php 
-                        $ingredients = $_POST['ingredients'] ?? [['name' => '', 'quantity' => '', 'unit' => '']];
-                        foreach ($ingredients as $index => $ingredient): 
-                        ?>
-                        <div class="ingredient-row flex gap-4 items-end mb-4">
+                    <div id="ingredients-container" class="space-y-4">
+                        <?php if (empty($currentIngredients)): ?>
+                        <!-- Default ingredient row when no ingredients exist -->
+                        <div class="ingredient-row flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
                             <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Ingredient Name</label>
-                                <input type="text" name="ingredients[<?php echo $index; ?>][name]" 
-                                       value="<?php echo htmlspecialchars($ingredient['name']); ?>"
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                                <input type="text" name="ingredients[0][name]" required
                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                       placeholder="e.g., Chicken breast">
+                                       placeholder="e.g., Flour">
                             </div>
                             <div class="w-24">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                                <input type="text" name="ingredients[<?php echo $index; ?>][quantity]" 
-                                       value="<?php echo htmlspecialchars($ingredient['quantity']); ?>"
+                                <input type="text" name="ingredients[0][quantity]"
                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                       placeholder="1">
+                                       placeholder="2">
                             </div>
                             <div class="w-24">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Unit</label>
-                                <input type="text" name="ingredients[<?php echo $index; ?>][unit]" 
+                                <input type="text" name="ingredients[0][unit]"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                       placeholder="cups">
+                            </div>
+                            <button type="button" onclick="removeIngredient(this)" 
+                                    class="px-3 py-2 text-red-600 hover:text-red-800">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <?php else: ?>
+                        <?php foreach ($currentIngredients as $index => $ingredient): ?>
+                        <div class="ingredient-row flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                                <input type="text" name="ingredients[<?php echo $index; ?>][name]" required
+                                       value="<?php echo htmlspecialchars($ingredient['name']); ?>"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                       placeholder="e.g., Flour">
+                            </div>
+                            <div class="w-24">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                                <input type="text" name="ingredients[<?php echo $index; ?>][quantity]"
+                                       value="<?php echo htmlspecialchars($ingredient['quantity']); ?>"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                       placeholder="2">
+                            </div>
+                            <div class="w-24">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+                                <input type="text" name="ingredients[<?php echo $index; ?>][unit]"
                                        value="<?php echo htmlspecialchars($ingredient['unit']); ?>"
                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                       placeholder="lb">
+                                       placeholder="cups">
                             </div>
                             <button type="button" onclick="removeIngredient(this)" 
                                     class="px-3 py-2 text-red-600 hover:text-red-800">
@@ -287,40 +357,41 @@ $cuisineTypes = getCuisineTypes();
                             </button>
                         </div>
                         <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
-                    
-                    <button type="button" onclick="addIngredient()" 
-                            class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md font-medium">
-                        <i class="fas fa-plus mr-2"></i>
-                        Add Ingredient
-                    </button>
                 </div>
                 
                 <!-- Instructions -->
                 <div class="space-y-6">
-                    <h2 class="text-xl font-semibold text-gray-900">Instructions *</h2>
-                    
+                    <h2 class="text-xl font-semibold text-gray-900">Instructions</h2>
                     <div>
                         <label for="instructions" class="block text-sm font-medium text-gray-700 mb-2">
-                            Step-by-step Instructions
+                            Step-by-step Instructions *
                         </label>
                         <textarea id="instructions" name="instructions" rows="8" required
                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                  placeholder="Write clear, step-by-step instructions for cooking..."><?php echo htmlspecialchars($_POST['instructions'] ?? ''); ?></textarea>
+                                  placeholder="Write detailed step-by-step instructions..."><?php echo htmlspecialchars($recipe['instructions']); ?></textarea>
                     </div>
                 </div>
                 
                 <!-- Submit Buttons -->
-                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
-                    <a href="index.php?page=recipes" 
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <a href="index.php?page=recipe-detail&id=<?php echo $recipeId; ?>" 
                        class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">
                         Cancel
                     </a>
-                    <button type="submit" 
-                            class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md font-medium">
-                        <i class="fas fa-save mr-2"></i>
-                        Create Recipe
-                    </button>
+                    <div class="flex space-x-4">
+                        <button type="button" onclick="deleteRecipe()" 
+                                class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md font-medium">
+                            <i class="fas fa-trash mr-2"></i>
+                            Delete Recipe
+                        </button>
+                        <button type="submit" 
+                                class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md font-medium">
+                            <i class="fas fa-save mr-2"></i>
+                            Update Recipe
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -328,30 +399,30 @@ $cuisineTypes = getCuisineTypes();
 </div>
 
 <script>
-let ingredientIndex = <?php echo count($_POST['ingredients'] ?? [['name' => '', 'quantity' => '', 'unit' => '']]); ?>;
+let ingredientIndex = <?php echo max(1, count($currentIngredients)); ?>;
 
 function addIngredient() {
     const container = document.getElementById('ingredients-container');
     const newRow = document.createElement('div');
-    newRow.className = 'ingredient-row flex gap-4 items-end mb-4';
+    newRow.className = 'ingredient-row flex items-center space-x-4 p-4 border border-gray-200 rounded-lg';
     newRow.innerHTML = `
         <div class="flex-1">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Ingredient Name</label>
-            <input type="text" name="ingredients[${ingredientIndex}][name]" 
+            <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <input type="text" name="ingredients[${ingredientIndex}][name]" required
                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                   placeholder="e.g., Chicken breast">
+                   placeholder="e.g., Flour">
         </div>
         <div class="w-24">
             <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-            <input type="text" name="ingredients[${ingredientIndex}][quantity]" 
+            <input type="text" name="ingredients[${ingredientIndex}][quantity]"
                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                   placeholder="1">
+                   placeholder="2">
         </div>
         <div class="w-24">
             <label class="block text-sm font-medium text-gray-700 mb-1">Unit</label>
-            <input type="text" name="ingredients[${ingredientIndex}][unit]" 
+            <input type="text" name="ingredients[${ingredientIndex}][unit]"
                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                   placeholder="lb">
+                   placeholder="cups">
         </div>
         <button type="button" onclick="removeIngredient(this)" 
                 class="px-3 py-2 text-red-600 hover:text-red-800">
@@ -398,10 +469,15 @@ document.getElementById('recipe_image').addEventListener('change', function(e) {
             preview.src = e.target.result;
         };
         reader.readAsDataURL(file);
-    } else {
-        preview.src = 'https://via.placeholder.com/200x150/78C841/FFFFFF?text=No+Image';
     }
 });
+
+// Delete recipe function
+function deleteRecipe() {
+    if (confirm('Are you sure you want to delete this recipe? This action cannot be undone.')) {
+        window.location.href = 'index.php?page=delete-recipe&id=<?php echo $recipeId; ?>';
+    }
+}
 
 // Form validation
 function validateForm() {

@@ -114,6 +114,125 @@
             justify-content: center;
         }
         
+        .sidebar.collapsed .user-dropdown .sidebar-menu-button {
+            flex-direction: column;
+            align-items: center;
+            padding: 0.75rem 0.5rem;
+            justify-content: center;
+            pointer-events: none;
+            cursor: default;
+        }
+        
+        .sidebar.collapsed .user-dropdown .sidebar-menu-button img {
+            width: 2.5rem;
+            height: 2.5rem;
+            margin-left: 1rem;
+            border-radius: 0.75rem;
+            object-fit: cover;
+            display: block;
+            background-color: #78C841;
+            border: 2px solid #e2e8f0;
+            flex-shrink: 0;
+            max-width: 2.5rem;
+            max-height: 2.5rem;
+            min-width: 2.5rem;
+            min-height: 2.5rem;
+        }
+        
+        .sidebar.collapsed .user-dropdown {
+            pointer-events: none;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .sidebar.collapsed .user-dropdown .sidebar-menu-button .flex-1 {
+            display: none !important;
+            visibility: hidden !important;
+        }
+        
+        .sidebar.collapsed .user-dropdown .sidebar-menu-button i {
+            display: none !important;
+            visibility: hidden !important;
+        }
+        
+        .sidebar.collapsed .user-dropdown .sidebar-menu-button .font-medium,
+        .sidebar.collapsed .user-dropdown .sidebar-menu-button .text-xs {
+            display: none !important;
+            visibility: hidden !important;
+        }
+        
+        .sidebar.collapsed .user-dropdown .sidebar-menu-button {
+            width: 100%;
+            height: auto;
+            padding: 1rem 0.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 4rem;
+        }
+        
+        .sidebar.collapsed .sidebar-header .flex-1 {
+            display: none;
+        }
+        
+        .sidebar.collapsed .sidebar-header .text-sm {
+            display: none;
+        }
+        
+        .sidebar.collapsed .sidebar-header {
+            justify-content: center;
+            padding: 1rem 0.5rem;
+        }
+        
+        .sidebar.collapsed .sidebar-header .flex {
+            justify-content: center;
+        }
+        
+        .sidebar.collapsed .sidebar-header .w-8 {
+            width: 2rem;
+            height: 2rem;
+        }
+        
+        .sidebar.collapsed .sidebar-header .w-8 i {
+            font-size: 1rem;
+            color: white !important;
+            display: block;
+        }
+        
+        .sidebar.collapsed .sidebar-header .w-8 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sidebar.collapsed .user-dropdown {
+            position: relative;
+        }
+        
+        
+        .sidebar.collapsed .sidebar-header:hover::after {
+            content: "FoodFusion Community";
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            z-index: 1000;
+            margin-left: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar.collapsed .sidebar-header {
+            position: relative;
+        }
+        
         .main-content {
             margin-left: 16rem;
             min-height: 100vh;

@@ -50,7 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $isLoggedIn) {
             $_SESSION['toast_message'] = 'Recipe unliked!';
             $_SESSION['toast_type'] = 'info';
         }
-        redirect('index.php?page=recipe-detail&id=' . $recipeId);
+        echo '<script>location.assign("index.php?page=recipe-detail&id=' . $recipeId . '");</script>';
+        exit;
     } elseif ($action == 'favorite') {
         $result = toggleFavorite($user['id'], $recipeId);
         if ($result['favorited']) {
@@ -60,7 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $isLoggedIn) {
             $_SESSION['toast_message'] = 'Removed from favorites!';
             $_SESSION['toast_type'] = 'info';
         }
-        redirect('index.php?page=recipe-detail&id=' . $recipeId);
+        echo '<script>location.assign("index.php?page=recipe-detail&id=' . $recipeId . '");</script>';
+        exit;
     } elseif ($action == 'review') {
         $rating = $_POST['rating'] ?? 0;
         $reviewText = sanitizeInput($_POST['review_text'] ?? '');
@@ -69,7 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $isLoggedIn) {
             addRecipeReview($user['id'], $recipeId, $rating, $reviewText);
             $_SESSION['toast_message'] = 'Review submitted!';
             $_SESSION['toast_type'] = 'success';
-            redirect('index.php?page=recipe-detail&id=' . $recipeId);
+            echo '<script>location.assign("index.php?page=recipe-detail&id=' . $recipeId . '");</script>';
+            exit;
         }
     }
 }
@@ -94,9 +97,28 @@ $pageTitle = $recipe['title'] . ' - FoodFusion';
             <div class="p-8">
                 <div class="flex flex-col md:flex-row md:items-start md:justify-between mb-6">
                     <div class="flex-1">
-                        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            <?php echo htmlspecialchars($recipe['title']); ?>
-                        </h1>
+                        <div class="flex items-center justify-between mb-4">
+                            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">
+                                <?php echo htmlspecialchars($recipe['title']); ?>
+                            </h1>
+                            
+                            <!-- Edit/Delete buttons for recipe owner -->
+                            <?php if ($isLoggedIn && $recipe['user_id'] == $user['id']): ?>
+                            <div class="flex space-x-2 mr-3">
+                                <a href="index.php?page=edit-recipe&id=<?php echo $recipeId; ?>" 
+                                   class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-edit mr-2"></i>
+                                    Edit
+                                </a>
+                                <a href="index.php?page=delete-recipe&id=<?php echo $recipeId; ?>" 
+                                   class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                                   onclick="return confirm('Are you sure you want to delete this recipe? This action cannot be undone.')">
+                                    <i class="fas fa-trash mr-2"></i>
+                                    Delete
+                                </a>
+                            </div>
+                            <?php endif; ?>
+                        </div>
                         
                         <!-- Social Share -->
                         <div class="mb-4">
@@ -174,7 +196,7 @@ $pageTitle = $recipe['title'] . ' - FoodFusion';
                     <div class="flex items-center space-x-4 mt-4 md:mt-0">
                         <form method="POST" class="inline">
                             <input type="hidden" name="action" value="like">
-                            <button type="submit" class="flex items-center px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+                            <button type="submit" class="flex items-center px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer">
                                 <i class="fas fa-heart mr-2 <?php echo $userLiked ? 'text-red-500' : 'text-gray-400'; ?>"></i>
                                 <span class="text-sm font-medium"><?php echo $userLiked ? 'Liked' : 'Like'; ?></span>
                             </button>
@@ -182,7 +204,7 @@ $pageTitle = $recipe['title'] . ' - FoodFusion';
                         
                         <form method="POST" class="inline">
                             <input type="hidden" name="action" value="favorite">
-                            <button type="submit" class="flex items-center px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+                            <button type="submit" class="flex items-center px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer">
                                 <i class="fas fa-bookmark mr-2 <?php echo $userFavorited ? 'text-yellow-500' : 'text-gray-400'; ?>"></i>
                                 <span class="text-sm font-medium"><?php echo $userFavorited ? 'Favorited' : 'Favorite'; ?></span>
                             </button>
