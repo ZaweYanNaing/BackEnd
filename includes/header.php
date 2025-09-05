@@ -153,7 +153,7 @@
         .user-dropdown-content {
             position: absolute;
             right: 0;
-            top: 100%;
+            bottom: 100%;
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 0.5rem;
@@ -161,6 +161,7 @@
             min-width: 12rem;
             z-index: 50;
             display: none;
+            margin-bottom: 0.5rem;
         }
         
         .user-dropdown.open .user-dropdown-content {
@@ -282,16 +283,16 @@
                 <div class="sidebar-group">
                     <ul class="sidebar-menu">
                         <li class="sidebar-menu-item">
-                            <a href="index.php?page=login" class="sidebar-menu-button">
+                            <button onclick="showLoginModal()" class="sidebar-menu-button w-full text-left">
                                 <i class="fas fa-sign-in-alt"></i>
                                 <span>Sign In</span>
-                            </a>
+                            </button>
                         </li>
                         <li class="sidebar-menu-item">
-                            <a href="index.php?page=register" class="sidebar-menu-button">
+                            <button onclick="showSignupModal()" class="sidebar-menu-button w-full text-left">
                                 <i class="fas fa-user-plus"></i>
                                 <span>Join Us</span>
-                            </a>
+                            </button>
                         </li>
                     </ul>
                 </div>
@@ -332,6 +333,10 @@
             <?php endif; ?>
         </div>
     </aside>
+    
+    <!-- Sign-up Popup and Cookie Banner -->
+    <?php include 'includes/signup-popup.php'; ?>
+    <?php include 'includes/cookie-banner.php'; ?>
     
     <!-- Main Content -->
     <div id="main-content" class="main-content">

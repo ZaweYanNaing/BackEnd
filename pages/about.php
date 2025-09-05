@@ -182,10 +182,16 @@ include 'includes/header.php';
             </p>
             
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="index.php?page=register" class="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center">
+                <?php if (!$isLoggedIn): ?>
+                <button onclick="showSignupModal()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center">
                     <i class="fas fa-user-plus mr-2"></i>
-                    Join FoodFusion
-                </a>
+                    Sign up Now
+                </button>
+                <button onclick="showLoginModal()" class="bg-white hover:bg-gray-50 text-green-600 px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center border-2 border-green-600">
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+                    Sign In
+                </button>
+                <?php endif; ?>
                 <a href="index.php?page=recipes" class="bg-white hover:bg-gray-50 text-green-600 px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center border-2 border-green-600">
                     <i class="fas fa-book-open mr-2"></i>
                     Explore Recipes

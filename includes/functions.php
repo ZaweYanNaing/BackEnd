@@ -1,5 +1,5 @@
 <?php
-require_once 'config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 // Suppress linter errors for $db variable type
 // The $db variable is a PDO object from config/database.php

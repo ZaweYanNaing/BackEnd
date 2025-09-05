@@ -98,6 +98,51 @@ $pageTitle = $recipe['title'] . ' - FoodFusion';
                             <?php echo htmlspecialchars($recipe['title']); ?>
                         </h1>
                         
+                        <!-- Social Share -->
+                        <div class="mb-4">
+                            <h3 class="text-sm font-medium text-gray-700 mb-2">Share this recipe:</h3>
+                            <?php 
+                            $shareUrl = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+                            $shareTitle = htmlspecialchars($recipe['title']);
+                            $shareDescription = htmlspecialchars($recipe['description']);
+                            ?>
+                            <div class="social-share-buttons flex flex-wrap gap-2">
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode($shareUrl); ?>" 
+                                   target="_blank" rel="noopener noreferrer"
+                                   class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                                    <i class="fab fa-facebook-f mr-2"></i>
+                                    Facebook
+                                </a>
+                                
+                                <a href="https://twitter.com/intent/tweet?url=<?php echo urlencode($shareUrl); ?>&text=<?php echo urlencode($shareTitle); ?>" 
+                                   target="_blank" rel="noopener noreferrer"
+                                   class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-400 rounded-md hover:bg-blue-500 transition-colors">
+                                    <i class="fab fa-twitter mr-2"></i>
+                                    Twitter
+                                </a>
+                                
+                                <a href="https://pinterest.com/pin/create/button/?url=<?php echo urlencode($shareUrl); ?>&description=<?php echo urlencode($shareDescription); ?>" 
+                                   target="_blank" rel="noopener noreferrer"
+                                   class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">
+                                    <i class="fab fa-pinterest-p mr-2"></i>
+                                    Pinterest
+                                </a>
+                                
+                                <a href="https://wa.me/?text=<?php echo urlencode($shareTitle . ' ' . $shareUrl); ?>" 
+                                   target="_blank" rel="noopener noreferrer"
+                                   class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors">
+                                    <i class="fab fa-whatsapp mr-2"></i>
+                                    WhatsApp
+                                </a>
+                                
+                                <button onclick="copyToClipboard('<?php echo $shareUrl; ?>')" 
+                                        class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-gray-600 rounded-md hover:bg-gray-700 transition-colors">
+                                    <i class="fas fa-link mr-2"></i>
+                                    Copy Link
+                                </button>
+                            </div>
+                        </div>
+                        
                         <div class="flex items-center space-x-6 text-gray-600 mb-4">
                             <span class="flex items-center">
                                 <i class="fas fa-user mr-2"></i>
