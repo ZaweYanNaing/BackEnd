@@ -259,6 +259,24 @@ INSERT INTO recipe_categories (recipe_id, category_id) VALUES
 (3, 4), -- Cookies - Dessert
 (3, 9); -- Cookies - Quick & Easy
 
+-- Create contact_messages table for contact form submissions
+CREATE TABLE IF NOT EXISTS contact_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    subject VARCHAR(100) NOT NULL,
+    message TEXT NOT NULL,
+    status ENUM('new', 'read', 'replied', 'closed') DEFAULT 'new',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_contact_status (status),
+    INDEX idx_contact_email (email),
+    INDEX idx_contact_created (created_at)
+);
+
 -- Insert sample cooking tips
 INSERT INTO cooking_tips (title, content, user_id, prep_time) VALUES
 ('Perfect Rice Every Time', 'Use a 1:2 ratio of rice to water. Bring to a boil, then reduce heat to low and cover. Cook for 18 minutes without lifting the lid.', 1, 5),
