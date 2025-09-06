@@ -26,7 +26,11 @@ include 'includes/header.php';
                 <!-- Contact Form -->
                 <div>
                     <h2 class="text-3xl font-bold text-gray-900 mb-6">Send us a Message</h2>
-                    <form class="space-y-6">
+                    
+                    <!-- Success/Error Messages -->
+                    <div id="contactMessage" class="hidden mb-6 p-4 rounded-lg"></div>
+                    
+                    <form id="contactForm" class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
@@ -66,10 +70,16 @@ include 'includes/header.php';
                                       placeholder="Tell us how we can help you..."></textarea>
                         </div>
                         
-                        <button type="submit" 
-                                class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                            <i class="fas fa-paper-plane mr-2"></i>
-                            Send Message
+                        <button type="submit" id="submitBtn"
+                                class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="submitText">
+                                <i class="fas fa-paper-plane mr-2"></i>
+                                Send Message
+                            </span>
+                            <span id="submitLoading" class="hidden">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>
+                                Sending...
+                            </span>
                         </button>
                     </form>
                 </div>
@@ -251,10 +261,17 @@ include 'includes/header.php';
                     <i class="fas fa-envelope mr-2"></i>
                     Email Us
                 </a>
-                <a href="index.php?page=register" class="bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center border-2 border-white">
+                <?php if (!isset($_SESSION['user_id'])): ?>
+                <button onclick="showSignupModal()" class="bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center border-2 border-white">
                     <i class="fas fa-user-plus mr-2"></i>
                     Join Community
+                </button>
+                <?php else: ?>
+                <a href="index.php?page=recipes" class="bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center border-2 border-white">
+                    <i class="fas fa-utensils mr-2"></i>
+                    Browse Recipes
                 </a>
+                <?php endif; ?>
             </div>
         </div>
     </section>
@@ -273,6 +290,76 @@ function toggleFAQ(button) {
         icon.style.transform = 'rotate(0deg)';
     }
 }
+
+// Contact form handling
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.getElementById('contactForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitText');
+    const submitLoading = document.getElementById('submitLoading');
+    const contactMessage = document.getElementById('contactMessage');
+
+    contactForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitText.classList.add('hidden');
+        submitLoading.classList.remove('hidden');
+        contactMessage.classList.add('hidden');
+
+        // Get form data
+        const formData = new FormData(contactForm);
+        const data = {
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
+            email: formData.get('email'),
+            subject: formData.get('subject'),
+            message: formData.get('message')
+        };
+
+        try {
+            console.log('Sending data:', data);
+            const response = await fetch('contact_process.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            console.log('Response status:', response.status);
+            const result = await response.json();
+            console.log('Response data:', result);
+
+            if (result.success) {
+                // Show success message
+                contactMessage.className = 'mb-6 p-4 rounded-lg bg-green-100 border border-green-400 text-green-700';
+                contactMessage.textContent = result.message;
+                contactMessage.classList.remove('hidden');
+                
+                // Reset form
+                contactForm.reset();
+            } else {
+                // Show error message
+                contactMessage.className = 'mb-6 p-4 rounded-lg bg-red-100 border border-red-400 text-red-700';
+                contactMessage.textContent = result.message;
+                contactMessage.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            // Show error message
+            contactMessage.className = 'mb-6 p-4 rounded-lg bg-red-100 border border-red-400 text-red-700';
+            contactMessage.textContent = 'An error occurred while sending your message. Please try again.';
+            contactMessage.classList.remove('hidden');
+        } finally {
+            // Reset button state
+            submitBtn.disabled = false;
+            submitText.classList.remove('hidden');
+            submitLoading.classList.add('hidden');
+        }
+    });
+});
 </script>
 
 <?php include 'includes/footer.php'; ?>
