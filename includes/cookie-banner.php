@@ -3,15 +3,15 @@
 ?>
 
 <!-- Cookie Consent Banner -->
-<div id="cookieBanner" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-100 hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+<div id="cookieBanner" class="fixed bottom-0 left-0 right-0 bg-sky-700 shadow-lg z-100 hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div class="flex-1">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">We use cookies</h3>
-                <p class="text-sm text-gray-600">
+                <h3 class="text-2xl font-semibold text-gray-300 mb-3">We use cookies</h3>
+                <p class="text-sm text-gray-300">
                     We use cookies to enhance your experience, analyze site traffic, and personalize content. 
                     By clicking "Accept All", you consent to our use of cookies. 
-                    <a href="index.php?page=privacy" class="text-green-600 hover:text-green-700 underline">Learn more</a>
+                    <a href="index.php?page=privacy" class="text-green-400 hover:text-green-500 underline">Learn more</a>
                 </p>
             </div>
             
@@ -30,7 +30,7 @@
 </div>
 
 <!-- Cookie Settings Modal -->
-<div id="cookieSettingsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+<div id="cookieSettingsModal" class="fixed inset-0 bg-gray-200 hidden z-100">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <!-- Modal Header -->
