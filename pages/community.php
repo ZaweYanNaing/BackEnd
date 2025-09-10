@@ -285,6 +285,45 @@ try {
         </div>
     </section>
 
+    <!-- Edit Tip Modal -->
+    <?php if ($currentUserId): ?>
+    <div id="editTipModal" class="fixed inset-0 bg-gray-200/50 hidden z-50">
+        <div class="min-h-full flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-lg">
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Edit Cooking Tip</h3>
+                    <button class="text-gray-500 hover:text-gray-700" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
+                </div>
+                <form id="editTipForm" class="p-6 space-y-4">
+                    <input type="hidden" id="editTipId">
+                    <div>
+                        <label for="editTipTitle" class="block text-sm font-medium text-gray-700 mb-2">Tip Title</label>
+                        <input type="text" id="editTipTitle" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label for="editTipContent" class="block text-sm font-medium text-gray-700 mb-2">Tip Content</label>
+                        <textarea id="editTipContent" rows="4" required
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"></textarea>
+                    </div>
+                    <div>
+                        <label for="editTipPrepTime" class="block text-sm font-medium text-gray-700 mb-2">Prep Time (minutes)</label>
+                        <input type="number" id="editTipPrepTime" min="0"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Optional">
+                    </div>
+                    <div class="flex space-x-3">
+                        <button type="submit" id="editTipSaveBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                            <span id="editTipSaveText"><i class="fas fa-save mr-2"></i>Save Changes</span>
+                            <span id="editTipSaving" class="hidden"><i class="fas fa-spinner fa-spin mr-2"></i>Saving...</span>
+                        </button>
+                        <button type="button" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50" onclick="closeEditModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Community Guidelines -->
     <section class="py-16 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -470,6 +509,52 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Handle edit form submit
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('editTipForm');
+    if (!form) return;
+    const saveBtn = document.getElementById('editTipSaveBtn');
+    const saveText = document.getElementById('editTipSaveText');
+    const saving = document.getElementById('editTipSaving');
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        saveBtn.disabled = true;
+        saveText.classList.add('hidden');
+        saving.classList.remove('hidden');
+
+        const payload = {
+            tip_id: document.getElementById('editTipId').value,
+            title: document.getElementById('editTipTitle').value.trim(),
+            content: document.getElementById('editTipContent').value.trim(),
+            prep_time: document.getElementById('editTipPrepTime').value || null
+        };
+
+        try {
+            const res = await fetch('api/tip_update.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            if (result.success) {
+                showToast('Tip updated successfully!', 'success');
+                closeEditModal();
+                setTimeout(() => location.reload(), 800);
+            } else {
+                showToast(result.message || 'Failed to update tip', 'error');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('An error occurred while updating tip', 'error');
+        } finally {
+            saveBtn.disabled = false;
+            saveText.classList.remove('hidden');
+            saving.classList.add('hidden');
+        }
+    });
+});
+
 // Toggle tip like
 async function toggleTipLike(tipId) {
     try {
@@ -509,8 +594,28 @@ async function toggleTipLike(tipId) {
 
 // Edit tip
 function editTip(tipId) {
-    // For now, just show a message - can be enhanced later
-    showToast('Edit functionality coming soon!', 'info');
+    const tipCard = document.querySelector(`button[onclick="editTip(${tipId})"]`)?.closest('.bg-white');
+    if (!tipCard) return;
+    const title = tipCard.querySelector('h3')?.textContent?.trim() || '';
+    const content = tipCard.querySelector('p.text-gray-700')?.textContent?.trim() || '';
+    const prepBadge = tipCard.querySelector('.fa-clock')?.parentElement?.textContent || '';
+    const prepMatch = prepBadge.match(/(\d+)\s*min/);
+    const prepTime = prepMatch ? parseInt(prepMatch[1], 10) : '';
+
+    // Prefill modal
+    document.getElementById('editTipId').value = tipId;
+    document.getElementById('editTipTitle').value = title;
+    document.getElementById('editTipContent').value = content;
+    document.getElementById('editTipPrepTime').value = prepTime;
+
+    // Show modal
+    const modal = document.getElementById('editTipModal');
+    modal.classList.remove('hidden');
+}
+
+function closeEditModal() {
+    const modal = document.getElementById('editTipModal');
+    if (modal) modal.classList.add('hidden');
 }
 
 // Delete tip
