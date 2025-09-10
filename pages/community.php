@@ -89,7 +89,7 @@ try {
                 <p class="text-lg text-gray-600">Our vibrant community in action</p>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
                 <div class="bg-gray-50 rounded-lg p-8 text-center">
                     <div class="text-4xl font-bold text-green-600 mb-2"><?php echo number_format($totalUsers); ?></div>
                     <div class="text-gray-600 font-medium">Active Members</div>
@@ -102,10 +102,7 @@ try {
                     <div class="text-4xl font-bold text-green-600 mb-2"><?php echo number_format($totalTips); ?></div>
                     <div class="text-gray-600 font-medium">Cooking Tips</div>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-8 text-center">
-                    <div class="text-4xl font-bold text-green-600 mb-2">50+</div>
-                    <div class="text-gray-600 font-medium">Countries</div>
-                </div>
+                
             </div>
         </div>
     </section>
