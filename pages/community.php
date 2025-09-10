@@ -119,8 +119,14 @@ try {
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <?php foreach ($recentUsers as $user): ?>
                 <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                    <img src="<?php echo $user['profile_image'] ? 'uploads/' . $user['profile_image'] : 'https://via.placeholder.com/80x80/78C841/FFFFFF?text=' . substr($user['firstName'], 0, 1); ?>" 
-                         alt="Profile" class="w-16 h-16 rounded-full mx-auto mb-4 object-cover">
+                    <?php if ($user['profile_image']): ?>
+                        <img src="uploads/<?php echo $user['profile_image']; ?>" 
+                             alt="Profile" class="w-16 h-16 rounded-full mx-auto mb-4 object-cover">
+                    <?php else: ?>
+                        <div class="w-16 h-16 rounded-full mx-auto mb-4 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                            <i class="fas fa-user text-white text-2xl"></i>
+                        </div>
+                    <?php endif; ?>
                     <h3 class="text-lg font-semibold text-gray-900 mb-1">
                         <?php echo htmlspecialchars($user['firstName'] . ' ' . $user['lastName']); ?>
                     </h3>
@@ -153,42 +159,60 @@ try {
                 <p class="text-lg text-gray-600">Share your culinary wisdom and learn from fellow cooks</p>
             </div>
             
-            <!-- Tip Creation Form (for logged-in users) -->
+            <!-- Share Tips Button and Form (for logged-in users) -->
             <?php if ($currentUserId): ?>
             <div class="mb-12">
-                <div class="bg-gray-50 rounded-lg p-6">
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Share a Cooking Tip</h3>
-                    <form id="tipForm" class="space-y-4">
-                        <div>
-                            <label for="tipTitle" class="block text-sm font-medium text-gray-700 mb-2">Tip Title</label>
-                            <input type="text" id="tipTitle" name="title" required
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                   placeholder="e.g., Perfect Rice Every Time">
-                        </div>
-                        <div>
-                            <label for="tipContent" class="block text-sm font-medium text-gray-700 mb-2">Tip Content</label>
-                            <textarea id="tipContent" name="content" rows="4" required
-                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                      placeholder="Share your cooking wisdom..."></textarea>
-                        </div>
-                        <div>
-                            <label for="tipPrepTime" class="block text-sm font-medium text-gray-700 mb-2">Prep Time (minutes)</label>
-                            <input type="number" id="tipPrepTime" name="prep_time" min="0"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                   placeholder="Optional">
-                        </div>
-                        <button type="submit" id="tipSubmitBtn"
-                                class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                            <span id="tipSubmitText">
-                                <i class="fas fa-lightbulb mr-2"></i>
-                                Share Tip
-                            </span>
-                            <span id="tipSubmitLoading" class="hidden">
-                                <i class="fas fa-spinner fa-spin mr-2"></i>
-                                Sharing...
-                            </span>
-                        </button>
-                    </form>
+                <!-- Share Tips Button -->
+                <div class="text-center mb-6">
+                    <button id="shareTipsBtn" onclick="toggleTipForm()" 
+                            class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium transition-colors inline-flex items-center">
+                        <i class="fas fa-lightbulb mr-2"></i>
+                        Share Tips
+                    </button>
+                </div>
+                
+                <!-- Tip Creation Form (hidden by default) -->
+                <div id="tipFormContainer" class="hidden">
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Share a Cooking Tip</h3>
+                        <form id="tipForm" class="space-y-4">
+                            <div>
+                                <label for="tipTitle" class="block text-sm font-medium text-gray-700 mb-2">Tip Title</label>
+                                <input type="text" id="tipTitle" name="title" required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                       placeholder="e.g., Perfect Rice Every Time">
+                            </div>
+                            <div>
+                                <label for="tipContent" class="block text-sm font-medium text-gray-700 mb-2">Tip Content</label>
+                                <textarea id="tipContent" name="content" rows="4" required
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                          placeholder="Share your cooking wisdom..."></textarea>
+                            </div>
+                            <div>
+                                <label for="tipPrepTime" class="block text-sm font-medium text-gray-700 mb-2">Prep Time (minutes)</label>
+                                <input type="number" id="tipPrepTime" name="prep_time" min="0"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                       placeholder="Optional">
+                            </div>
+                            <div class="flex space-x-4">
+                                <button type="submit" id="tipSubmitBtn"
+                                        class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <span id="tipSubmitText">
+                                        <i class="fas fa-lightbulb mr-2"></i>
+                                        Share Tip
+                                    </span>
+                                    <span id="tipSubmitLoading" class="hidden">
+                                        <i class="fas fa-spinner fa-spin mr-2"></i>
+                                        Sharing...
+                                    </span>
+                                </button>
+                                <button type="button" onclick="toggleTipForm()" 
+                                        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
             <?php endif; ?>
@@ -200,8 +224,14 @@ try {
                     <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
                         <div class="flex items-start justify-between mb-4">
                             <div class="flex items-center space-x-3">
-                                <img src="<?php echo $tip['profile_image'] ? 'uploads/' . $tip['profile_image'] : 'https://via.placeholder.com/40x40/78C841/FFFFFF?text=' . substr($tip['firstName'], 0, 1); ?>" 
-                                     alt="Profile" class="w-10 h-10 rounded-full object-cover">
+                                <?php if ($tip['profile_image']): ?>
+                                    <img src="uploads/<?php echo $tip['profile_image']; ?>" 
+                                         alt="Profile" class="w-10 h-10 rounded-full object-cover">
+                                <?php else: ?>
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                                        <i class="fas fa-user text-white text-sm"></i>
+                                    </div>
+                                <?php endif; ?>
                                 <div>
                                     <h4 class="font-semibold text-gray-900"><?php echo htmlspecialchars($tip['firstName'] . ' ' . $tip['lastName']); ?></h4>
                                     <p class="text-sm text-gray-500"><?php echo formatDate($tip['created_at']); ?></p>
@@ -357,6 +387,24 @@ try {
 </div>
 
 <script>
+// Toggle tip form visibility
+function toggleTipForm() {
+    const formContainer = document.getElementById('tipFormContainer');
+    const shareBtn = document.getElementById('shareTipsBtn');
+    
+    if (formContainer.classList.contains('hidden')) {
+        formContainer.classList.remove('hidden');
+        shareBtn.innerHTML = '<i class="fas fa-times mr-2"></i>Cancel';
+        shareBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+        shareBtn.classList.add('bg-gray-500', 'hover:bg-gray-600');
+    } else {
+        formContainer.classList.add('hidden');
+        shareBtn.innerHTML = '<i class="fas fa-lightbulb mr-2"></i>Share Tips';
+        shareBtn.classList.remove('bg-gray-500', 'hover:bg-gray-600');
+        shareBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+    }
+}
+
 // Tip form handling
 document.addEventListener('DOMContentLoaded', function() {
     const tipForm = document.getElementById('tipForm');
@@ -398,6 +446,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Reset form
                     tipForm.reset();
+                    
+                    // Hide form and reset button
+                    toggleTipForm();
                     
                     // Reload page to show new tip
                     setTimeout(() => {
