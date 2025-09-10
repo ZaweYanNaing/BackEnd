@@ -423,8 +423,14 @@
             <div class="sidebar-footer">
                 <div class="user-dropdown" id="user-dropdown">
                     <button class="sidebar-menu-button w-full" onclick="toggleUserDropdown()">
-                        <img src="<?php echo $user['profile_image'] ? 'uploads/' . $user['profile_image'] : 'https://via.placeholder.com/32x32/78C841/FFFFFF?text=' . substr($user['firstName'], 0, 1); ?>" 
-                             alt="Profile" class="w-8 h-8 rounded-lg mr-3">
+                        <?php if ($user['profile_image']): ?>
+                            <img src="uploads/<?php echo $user['profile_image']; ?>" 
+                                 alt="Profile" class="w-8 h-8 rounded-lg mr-3 object-cover">
+                        <?php else: ?>
+                            <div class="w-8 h-8 rounded-lg mr-3 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                                <i class="fas fa-user text-white text-xs ml-5 mt-1"></i>
+                            </div>
+                        <?php endif; ?>
                         <div class="flex-1 text-left">
                             <div class="font-medium text-sm"><?php echo htmlspecialchars($user['firstName'] . ' ' . $user['lastName']); ?></div>
                             <div class="text-xs text-gray-500"><?php echo htmlspecialchars($user['email']); ?></div>

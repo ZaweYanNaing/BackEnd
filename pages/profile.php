@@ -73,8 +73,14 @@ try {
         <div class="bg-white rounded-lg shadow-md p-8 mb-8">
             <div class="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
                 <div class="flex-shrink-0">
-                    <img src="<?php echo $user['profile_image'] ? 'uploads/' . $user['profile_image'] : 'https://via.placeholder.com/120x120/78C841/FFFFFF?text=' . substr($user['firstName'], 0, 1); ?>" 
-                         alt="Profile" class="w-24 h-24 rounded-full">
+                    <?php if ($user['profile_image']): ?>
+                        <img src="uploads/<?php echo $user['profile_image']; ?>" 
+                             alt="Profile" class="w-24 h-24 rounded-full object-cover">
+                    <?php else: ?>
+                        <div class="w-24 h-24 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                            <i class="fas fa-user text-white text-3xl"></i>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 
                 <div class="flex-1">
