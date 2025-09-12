@@ -282,3 +282,19 @@ INSERT INTO cooking_tips (title, content, user_id, prep_time) VALUES
 ('Perfect Rice Every Time', 'Use a 1:2 ratio of rice to water. Bring to a boil, then reduce heat to low and cover. Cook for 18 minutes without lifting the lid.', 1, 5),
 ('Knife Safety Tips', 'Always keep your knives sharp. A dull knife is more dangerous than a sharp one. Use a proper cutting board and keep your fingers curled under when chopping.', 1, 0),
 ('Seasoning Secrets', 'Taste your food as you cook and season in layers. Start with salt and pepper, then add herbs and spices. Remember, you can always add more, but you can\'t take it away.', 1, 0);
+
+-- Create educational_resources table
+CREATE TABLE IF NOT EXISTS educational_resources (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    type ENUM('document','infographic','video','presentation','guide') NOT NULL,
+    file_path VARCHAR(500) NOT NULL,
+    download_count INT NOT NULL DEFAULT 0,
+    created_by INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_resource_type (type),
+    INDEX idx_resource_created (created_at)
+);
