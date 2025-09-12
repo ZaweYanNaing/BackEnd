@@ -97,7 +97,7 @@ include 'includes/header.php';
 
     <!-- Upload Modal -->
     <?php if (isset($_SESSION['user_id'])): ?>
-    <div id="uploadModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div id="uploadModal" class="fixed inset-0 bg-gray-400/40 hidden z-50 shadow-2xl">
         <div class="min-h-full flex items-center justify-center p-4">
             <div class="bg-white rounded-lg w-full max-w-md p-6">
                 <div class="flex items-center justify-between mb-4">
