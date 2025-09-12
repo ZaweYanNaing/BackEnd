@@ -176,8 +176,8 @@ function createRecipe($data) {
         $db->beginTransaction();
         
         // Insert recipe
-        $stmt = $db->prepare("INSERT INTO recipes (title, description, instructions, cooking_time, difficulty, user_id, image_url, servings, cuisine_type_id, created_at) 
-                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+        $stmt = $db->prepare("INSERT INTO recipes (title, description, instructions, cooking_time, difficulty, user_id, image_url, video_url, servings, cuisine_type_id, created_at) 
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
         $stmt->execute([
             $data['title'],
             $data['description'] ?? '',
@@ -186,6 +186,7 @@ function createRecipe($data) {
             $data['difficulty'] ?? 'Medium',
             $data['user_id'],
             $data['image_url'] ?? null,
+            $data['video_url'] ?? null,
             $data['servings'] ?? null,
             $data['cuisine_type_id'] ?? null
         ]);
@@ -227,7 +228,7 @@ function updateRecipe($data) {
         $db->beginTransaction();
         
         // Update recipe
-        $stmt = $db->prepare("UPDATE recipes SET title = ?, description = ?, instructions = ?, cooking_time = ?, difficulty = ?, image_url = ?, servings = ?, cuisine_type_id = ?, updated_at = NOW() WHERE id = ?");
+        $stmt = $db->prepare("UPDATE recipes SET title = ?, description = ?, instructions = ?, cooking_time = ?, difficulty = ?, image_url = ?, video_url = ?, servings = ?, cuisine_type_id = ?, updated_at = NOW() WHERE id = ?");
         $stmt->execute([
             $data['title'],
             $data['description'] ?? '',
@@ -235,6 +236,7 @@ function updateRecipe($data) {
             $data['cooking_time'] ?? null,
             $data['difficulty'] ?? 'Medium',
             $data['image_url'] ?? null,
+            $data['video_url'] ?? null,
             $data['servings'] ?? null,
             $data['cuisine_type_id'] ?? null,
             $data['id']

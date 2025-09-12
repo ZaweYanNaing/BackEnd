@@ -48,6 +48,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
     
+    // Handle video upload
+    $videoUrl = '';
+    if (isset($_FILES['recipe_video']) && $_FILES['recipe_video']['error'] === UPLOAD_ERR_OK) {
+        $file = $_FILES['recipe_video'];
+        
+        // Validate file type
+        $allowedTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv', 'video/webm'];
+        $fileType = mime_content_type($file['tmp_name']);
+        
+        if (in_array($fileType, $allowedTypes)) {
+            // Validate file size (max 100MB)
+            $maxSize = 100 * 1024 * 1024; // 100MB
+            if ($file['size'] <= $maxSize) {
+                // Generate unique filename
+                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $filename = 'recipe_video_' . $user['id'] . '_' . time() . '_' . uniqid() . '.' . $extension;
+                $uploadPath = __DIR__ . '/../uploads/' . $filename;
+                
+                if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+                    $videoUrl = $filename;
+                }
+            } else {
+                $error = 'Recipe video too large. Maximum size is 100MB.';
+            }
+        } else {
+            $error = 'Invalid file type for recipe video. Only MP4, AVI, MOV, WMV, and WebM videos are allowed.';
+        }
+    }
+    
     // Validation
     if (empty($title) || empty($instructions)) {
         $error = 'Title and instructions are required.';
@@ -105,7 +134,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'categories' => array_map('intval', $categories),
                 'ingredients' => $processedIngredients,
                 'user_id' => $user['id'],
-                'image_url' => $imageUrl
+                'image_url' => $imageUrl,
+                'video_url' => $videoUrl
             ];
             
             $recipeId = createRecipe($recipeData);
@@ -178,6 +208,29 @@ $cuisineTypes = getCuisineTypes();
                                 <input type="file" id="recipe_image" name="recipe_image" accept="image/*"
                                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
                                 <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF, WebP up to 5MB</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recipe Video Upload -->
+                    <div>
+                        <label for="recipe_video" class="block text-sm font-medium text-gray-700 mb-2">
+                            Recipe Video (Optional)
+                        </label>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-shrink-0">
+                                <video id="video-preview" class="w-32 h-24 bg-gray-200 rounded-lg border border-gray-300 hidden" controls>
+                                    <source src="" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                                <div id="video-placeholder" class="w-32 h-24 bg-gray-200 rounded-lg border border-gray-300 flex items-center justify-center">
+                                    <i class="fas fa-video text-2xl text-gray-400"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <input type="file" id="recipe_video" name="recipe_video" accept="video/*"
+                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                                <p class="text-xs text-gray-500 mt-1">MP4, AVI, MOV, WMV, WebM up to 100MB</p>
                             </div>
                         </div>
                     </div>
@@ -400,6 +453,39 @@ document.getElementById('recipe_image').addEventListener('change', function(e) {
         reader.readAsDataURL(file);
     } else {
         preview.src = 'https://via.placeholder.com/200x150/78C841/FFFFFF?text=No+Image';
+    }
+});
+
+// Video preview functionality
+document.getElementById('recipe_video').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const videoPreview = document.getElementById('video-preview');
+    const videoPlaceholder = document.getElementById('video-placeholder');
+    
+    if (file) {
+        // Validate file type
+        const allowedTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv', 'video/webm'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Please select a valid video file (MP4, AVI, MOV, WMV, or WebM).');
+            this.value = '';
+            return;
+        }
+        
+        // Validate file size (100MB)
+        if (file.size > 100 * 1024 * 1024) {
+            alert('File size must be less than 100MB.');
+            this.value = '';
+            return;
+        }
+        
+        const url = URL.createObjectURL(file);
+        videoPreview.src = url;
+        videoPreview.classList.remove('hidden');
+        videoPlaceholder.classList.add('hidden');
+    } else {
+        videoPreview.src = '';
+        videoPreview.classList.add('hidden');
+        videoPlaceholder.classList.remove('hidden');
     }
 });
 

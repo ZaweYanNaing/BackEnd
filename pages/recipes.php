@@ -100,15 +100,19 @@ $cuisineTypes = getCuisineTypes();
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <?php foreach ($recipes as $recipe): ?>
             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                <?php if ($recipe['image_url']): ?>
-                <img src="uploads/<?php echo htmlspecialchars($recipe['image_url']); ?>" 
-                     alt="<?php echo htmlspecialchars($recipe['title']); ?>" 
-                     class="w-full h-48 object-cover">
-                <?php else: ?>
-                <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
-                    <i class="fas fa-image text-4xl text-gray-400"></i>
+                <div class="relative">
+                    <?php if ($recipe['image_url']): ?>
+                    <!-- Image -->
+                    <img src="uploads/<?php echo htmlspecialchars($recipe['image_url']); ?>" 
+                         alt="<?php echo htmlspecialchars($recipe['title']); ?>" 
+                         class="w-full h-48 object-cover">
+                    <?php else: ?>
+                    <!-- No Media -->
+                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-image text-4xl text-gray-400"></i>
+                    </div>
+                    <?php endif; ?>
                 </div>
-                <?php endif; ?>
                 
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-2">

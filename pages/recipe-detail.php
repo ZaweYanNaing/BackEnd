@@ -85,10 +85,12 @@ $pageTitle = $recipe['title'] . ' - FoodFusion';
         <!-- Recipe Header -->
         <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
             <?php if ($recipe['image_url']): ?>
+            <!-- Image -->
             <img src="uploads/<?php echo htmlspecialchars($recipe['image_url']); ?>" 
                  alt="<?php echo htmlspecialchars($recipe['title']); ?>" 
                  class="w-full h-64 md:h-96 object-cover">
             <?php else: ?>
+            <!-- No Media -->
             <div class="w-full h-64 md:h-96 bg-gray-200 flex items-center justify-center">
                 <i class="fas fa-image text-6xl text-gray-400"></i>
             </div>
@@ -178,6 +180,12 @@ $pageTitle = $recipe['title'] . ' - FoodFusion';
                                 <i class="fas fa-users mr-2"></i>
                                 <?php echo $recipe['servings'] ? $recipe['servings'] . ' servings' : 'N/A'; ?>
                             </span>
+                            <?php if ($recipe['video_url']): ?>
+                            <span class="flex items-center text-green-600">
+                                <i class="fas fa-video mr-2"></i>
+                                Video Available
+                            </span>
+                            <?php endif; ?>
                         </div>
                         
                         <div class="flex items-center space-x-4 mb-4">
@@ -278,73 +286,90 @@ $pageTitle = $recipe['title'] . ' - FoodFusion';
                     </div>
                 </div>
                 
-                <!-- Reviews Section -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">
-                        <i class="fas fa-star mr-2"></i>
-                        Reviews
-                    </h2>
-                    
-                    <?php if ($isLoggedIn): ?>
-                    <!-- Add Review Form -->
-                    <form method="POST" class="mb-6 p-4 bg-gray-50 rounded-lg">
-                        <input type="hidden" name="action" value="review">
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
-                            <div class="flex items-center space-x-1">
-                                <?php for ($i = 1; $i <= 5; $i++): ?>
-                                <input type="radio" name="rating" value="<?php echo $i; ?>" id="star<?php echo $i; ?>" class="sr-only">
-                                <label for="star<?php echo $i; ?>" class="text-2xl cursor-pointer text-gray-300 hover:text-yellow-400">
-                                    ★
-                                </label>
-                                <?php endfor; ?>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="review_text" class="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
-                            <textarea name="review_text" id="review_text" rows="3" 
-                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                      placeholder="Share your thoughts about this recipe..."></textarea>
-                        </div>
-                        
-                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium">
-                            Submit Review
-                        </button>
-                    </form>
-                    <?php endif; ?>
-                    
-                    <!-- Reviews List -->
-                    <?php if (!empty($reviews)): ?>
-                    <div class="space-y-4">
-                        <?php foreach ($reviews as $review): ?>
-                        <div class="border-b border-gray-200 pb-4 last:border-b-0">
-                            <div class="flex items-center justify-between mb-2">
+        <!-- Video Section -->
+        <?php if ($recipe['video_url']): ?>
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">
+                <i class="fas fa-video mr-2"></i>
+                Cooking Video
+            </h2>
+            <div class="relative w-full bg-black rounded-lg overflow-hidden">
+                <video controls class="w-full h-96 object-contain">
+                    <source src="uploads/<?php echo htmlspecialchars($recipe['video_url']); ?>" type="video/mp4" >
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+        <?php endif; ?>
+                
+            </div>
+        </div>
+        
+        <!-- Reviews Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">
+                <i class="fas fa-star mr-2"></i>
+                Reviews
+            </h2>
+            
+            <?php if ($isLoggedIn): ?>
+            <!-- Add Review Form -->
+            <form method="POST" class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <input type="hidden" name="action" value="review">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
+                    <div class="flex items-center space-x-1">
+                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <input type="radio" name="rating" value="<?php echo $i; ?>" id="star<?php echo $i; ?>" class="sr-only">
+                        <label for="star<?php echo $i; ?>" class="text-2xl cursor-pointer text-gray-300 hover:text-yellow-400">
+                            ★
+                        </label>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="review_text" class="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
+                    <textarea name="review_text" id="review_text" rows="3" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                              placeholder="Share your thoughts about this recipe..."></textarea>
+                </div>
+                
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium">
+                    Submit Review
+                </button>
+            </form>
+            <?php endif; ?>
+            
+            <!-- Reviews List -->
+            <?php if (!empty($reviews)): ?>
+            <div class="space-y-4">
+                <?php foreach ($reviews as $review): ?>
+                <div class="border-b border-gray-200 pb-4 last:border-b-0">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center">
+                            <img src="<?php echo $review['profile_image'] ? 'uploads/' . $review['profile_image'] : 'https://via.placeholder.com/32x32/78C841/FFFFFF?text=' . substr($review['firstName'], 0, 1); ?>" 
+                                 alt="Profile" class="w-8 h-8 rounded-full mr-3">
+                            <div>
+                                <h4 class="font-medium text-gray-900">
+                                    <?php echo htmlspecialchars($review['firstName'] . ' ' . $review['lastName']); ?>
+                                </h4>
                                 <div class="flex items-center">
-                                    <img src="<?php echo $review['profile_image'] ? 'uploads/' . $review['profile_image'] : 'https://via.placeholder.com/32x32/78C841/FFFFFF?text=' . substr($review['firstName'], 0, 1); ?>" 
-                                         alt="Profile" class="w-8 h-8 rounded-full mr-3">
-                                    <div>
-                                        <h4 class="font-medium text-gray-900">
-                                            <?php echo htmlspecialchars($review['firstName'] . ' ' . $review['lastName']); ?>
-                                        </h4>
-                                        <div class="flex items-center">
-                                            <?php echo generateStars($review['rating']); ?>
-                                            <span class="ml-2 text-sm text-gray-500">
-                                                <?php echo formatDate($review['created_at']); ?>
-                                            </span>
-                                        </div>
-                                    </div>
+                                    <?php echo generateStars($review['rating']); ?>
+                                    <span class="ml-2 text-sm text-gray-500">
+                                        <?php echo formatDate($review['created_at']); ?>
+                                    </span>
                                 </div>
                             </div>
-                            <p class="text-gray-700"><?php echo nl2br(htmlspecialchars($review['review_text'])); ?></p>
                         </div>
-                        <?php endforeach; ?>
                     </div>
-                    <?php else: ?>
-                    <p class="text-gray-500 text-center py-8">No reviews yet. Be the first to review this recipe!</p>
-                    <?php endif; ?>
+                    <p class="text-gray-700"><?php echo nl2br(htmlspecialchars($review['review_text'])); ?></p>
                 </div>
+                <?php endforeach; ?>
             </div>
+            <?php else: ?>
+            <p class="text-gray-500 text-center py-8">No reviews yet. Be the first to review this recipe!</p>
+            <?php endif; ?>
         </div>
     </div>
 </div>

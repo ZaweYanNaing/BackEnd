@@ -43,6 +43,7 @@ CREATE TABLE recipes (
     difficulty ENUM('Easy', 'Medium', 'Hard') DEFAULT 'Medium',
     user_id INT NOT NULL,
     image_url VARCHAR(500),
+    video_url VARCHAR(500),
     servings INT,
     cuisine_type_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
