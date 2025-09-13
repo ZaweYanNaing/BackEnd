@@ -39,7 +39,7 @@
                         <ul class="space-y-2">
                             <li><a href="index.php" class="text-gray-300 hover:text-white">Home</a></li>
                             <li><a href="index.php?page=recipes" class="text-gray-300 hover:text-white">Recipes</a></li>
-                            <li><a href="index.php?page=cooking-tips" class="text-gray-300 hover:text-white">Cooking Tips</a></li>
+                            <li><a href="index.php?page=culinary" class="text-gray-300 hover:text-white">Culinary</a></li>
                             <li><a href="index.php?page=search" class="text-gray-300 hover:text-white">Search</a></li>
                         </ul>
                     </div>

@@ -154,7 +154,7 @@ include 'includes/header.php';
                     <i class="fas fa-user-plus mr-2"></i>
                     Join FoodFusion
                 </a>
-                <a href="index.php?page=cooking-tips" class="bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center border-2 border-white">
+                <a href="index.php?page=culinary" class="bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center border-2 border-white">
                     <i class="fas fa-lightbulb mr-2"></i>
                     Browse Tips
                 </a>

@@ -57,7 +57,7 @@ switch ($page) {
     case 'delete-recipe':
         include 'pages/delete-recipe.php';
         break;
-    case 'cooking-tips':
+    case 'culinary':
         include 'pages/cooking-tips.php';
         break;
     case 'community':

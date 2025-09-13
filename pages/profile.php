@@ -233,7 +233,7 @@ try {
                         <i class="fas fa-lightbulb text-4xl text-gray-300 mb-4"></i>
                         <h3 class="text-lg font-semibold text-gray-900 mb-2">No cooking tips yet</h3>
                         <p class="text-gray-600 mb-4">Share your cooking wisdom with the community!</p>
-                        <a href="index.php?page=cooking-tips" 
+                        <a href="index.php?page=culinary" 
                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium">
                             Share a Cooking Tip
                         </a>

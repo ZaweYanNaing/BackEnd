@@ -23,7 +23,7 @@ include 'includes/header.php';
             
             <div class="text-sm text-gray-500">
                 <a href="index.php?page=recipes" class="hover:text-green-600 mr-4">Browse Recipes</a>
-                <a href="index.php?page=cooking-tips" class="hover:text-green-600 mr-4">Cooking Tips</a>
+                <a href="index.php?page=culinary" class="hover:text-green-600 mr-4">Culinary</a>
                 <a href="index.php?page=search" class="hover:text-green-600">Search</a>
             </div>
         </div>

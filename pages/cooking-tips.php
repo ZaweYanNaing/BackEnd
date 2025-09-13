@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $isLoggedIn) {
             
             $_SESSION['toast_message'] = 'Cooking tip created successfully!';
             $_SESSION['toast_type'] = 'success';
-            redirect('index.php?page=cooking-tips');
+            redirect('index.php?page=culinary');
         } catch (Exception $e) {
             $error = 'Failed to create cooking tip. Please try again.';
         }

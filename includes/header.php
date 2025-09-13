@@ -378,7 +378,7 @@
                             </a>
                         </li>
                         <li class="sidebar-menu-item">
-                            <a href="index.php?page=cooking-tips" class="sidebar-menu-button <?php echo ($page == 'cooking-tips') ? 'active' : ''; ?>">
+                            <a href="index.php?page=culinary" class="sidebar-menu-button <?php echo ($page == 'culinary') ? 'active' : ''; ?>">
                                 <i class="fas fa-graduation-cap"></i>
                                 <span>Culinary Resources</span>
                             </a>
