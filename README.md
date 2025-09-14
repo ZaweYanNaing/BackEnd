@@ -11,6 +11,7 @@ A comprehensive culinary platform built with PHP, MySQL, and TailwindCSS. This i
 - **Categorization** by food categories and cuisine types
 - **Search and filtering** by category, difficulty, cooking time
 - **Recipe ratings and reviews** system
+- **PDF recipe card downloads** with professional formatting
 
 ### 👥 User Management
 - **User registration and authentication**
@@ -28,6 +29,13 @@ A comprehensive culinary platform built with PHP, MySQL, and TailwindCSS. This i
 - **Share cooking tips** and techniques
 - **Browse community tips**
 - **Search tips** by content
+- **Download cooking tips as PDF**
+
+### 📚 Culinary Resources
+- **Video Tutorials** - Watch and download recipe videos
+- **Educational Videos** - Downloadable instructional content
+- **Kitchen Hacks** - Practical cooking tips and shortcuts
+- **Recipe Cards** - Beautiful PDF downloads with images
 
 ### 🔍 Search & Discovery
 - **Advanced search** across recipes and cooking tips
@@ -39,6 +47,7 @@ A comprehensive culinary platform built with PHP, MySQL, and TailwindCSS. This i
 - **Mobile-friendly** interface
 - **Clean and intuitive** user experience
 - **Toast notifications** for user feedback
+- **Professional video player** with fullscreen modal
 
 ## Technology Stack
 
@@ -48,6 +57,8 @@ A comprehensive culinary platform built with PHP, MySQL, and TailwindCSS. This i
 - **Styling**: TailwindCSS 4.1.13
 - **Icons**: Font Awesome 6.0
 - **Server**: Apache (XAMPP)
+- **PDF Generation**: TCPDF Library
+- **Package Management**: Composer
 
 ## Installation
 
@@ -55,6 +66,8 @@ A comprehensive culinary platform built with PHP, MySQL, and TailwindCSS. This i
 - XAMPP or similar local development environment
 - PHP 7.4 or higher
 - MySQL 8.0 or higher
+- Composer (for PDF generation dependencies)
+- Node.js (for TailwindCSS compilation)
 - Web browser
 
 ### Setup Instructions
@@ -64,25 +77,41 @@ A comprehensive culinary platform built with PHP, MySQL, and TailwindCSS. This i
    /Applications/XAMPP/xamppfiles/htdocs/BEfood/
    ```
 
-2. **Start XAMPP** services:
+2. **Install Dependencies**:
+   ```bash
+   # Install PHP dependencies
+   composer install
+   
+   # Install Node.js dependencies
+   npm install
+   ```
+
+3. **Start XAMPP** services:
    - Start Apache
    - Start MySQL
 
-3. **Create Database**:
+4. **Create Database**:
    - Open phpMyAdmin (http://localhost/phpmyadmin)
    - Create a new database named `foodfusion_db`
    - Import the schema from `database/schema.sql`
+   - Optionally import `database/culinary_resources_schema.sql` for additional features
 
-4. **Configure Database** (if needed):
+5. **Configure Database** (if needed):
    - Edit `config/database.php` to match your MySQL credentials
    - Default settings work with XAMPP default configuration
 
-5. **Set Permissions**:
+6. **Compile TailwindCSS** (if making style changes):
    ```bash
-   chmod 755 uploads/
+   npx @tailwindcss/cli -i ./src/input.css -o ./src/output.css --watch
    ```
 
-6. **Access the Application**:
+7. **Set Permissions**:
+   ```bash
+   chmod 755 uploads/
+   chmod 755 uploads/educational-resources/
+   ```
+
+8. **Access the Application**:
    - Open your browser and go to `http://localhost/BEfood/`
 
 ## Project Structure
@@ -92,7 +121,8 @@ BEfood/
 ├── config/
 │   └── database.php          # Database configuration
 ├── database/
-│   └── schema.sql            # Database schema and sample data
+│   ├── schema.sql            # Main database schema and sample data
+│   └── culinary_resources_schema.sql # Additional culinary resources schema
 ├── includes/
 │   ├── functions.php         # Core PHP functions
 │   ├── header.php           # HTML header template
@@ -106,7 +136,8 @@ BEfood/
 │   ├── recipes.php          # Recipe listing
 │   ├── recipe-detail.php    # Individual recipe view
 │   ├── create-recipe.php    # Create new recipe
-│   ├── cooking-tips.php     # Cooking tips
+│   ├── culinary.php         # Culinary resources hub
+│   ├── resources.php        # Educational resources
 │   ├── search.php           # Search functionality
 │   ├── favorites.php        # User favorites
 │   ├── logout.php           # Logout handler
@@ -115,8 +146,16 @@ BEfood/
 │   ├── input.css            # TailwindCSS input
 │   └── output.css           # Compiled TailwindCSS
 ├── uploads/                 # User uploaded images
-├── index.php                # Main application entry point
-├── upload.php               # Image upload handler
+│   └── educational-resources/ # Educational video files
+├── vendor/                  # Composer dependencies
+├── node_modules/           # Node.js dependencies
+├── composer.json           # PHP dependencies
+├── composer.lock           # PHP dependency lock file
+├── package.json            # Node.js dependencies
+├── package-lock.json       # Node.js dependency lock file
+├── .gitignore              # Git ignore rules
+├── index.php               # Main application entry point
+├── upload.php              # Image upload handler
 └── README.md               # This file
 ```
 
