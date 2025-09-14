@@ -3,6 +3,7 @@
 if (isset($_GET['download']) && isset($_GET['type']) && isset($_GET['id'])) {
     require_once 'config/database.php';
     require_once 'includes/functions.php';
+    require_once 'vendor/autoload.php';
     
     $downloadType = $_GET['type'];
     $resourceId = (int)$_GET['id'];
@@ -22,32 +23,157 @@ if (isset($_GET['download']) && isset($_GET['type']) && isset($_GET['id'])) {
                 $stmt->execute([$resourceId]);
                 $ingredients = $stmt->fetchAll();
                 
-                // Generate downloadable recipe card content
-                $content = "=== " . strtoupper($recipe['title']) . " ===\n\n";
-                $content .= "Description: " . $recipe['description'] . "\n\n";
-                $content .= "Cooking Time: " . $recipe['cooking_time'] . " minutes\n";
-                $content .= "Difficulty: " . $recipe['difficulty'] . "\n";
-                $content .= "Servings: " . $recipe['servings'] . "\n\n";
+                // Create PDF
+                $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
                 
-                $content .= "INGREDIENTS:\n";
-                $content .= "============\n";
-                foreach ($ingredients as $ingredient) {
-                    $content .= "- " . $ingredient['quantity'] . " " . $ingredient['unit'] . " " . $ingredient['name'] . "\n";
+                // Set document information
+                $pdf->SetCreator('FoodFusion');
+                $pdf->SetAuthor('FoodFusion');
+                $pdf->SetTitle($recipe['title'] . ' - Recipe Card');
+                $pdf->SetSubject('Recipe Card');
+                
+                // Remove default header/footer
+                $pdf->setPrintHeader(false);
+                $pdf->setPrintFooter(false);
+                
+                // Set margins
+                $pdf->SetMargins(15, 15, 15);
+                $pdf->SetAutoPageBreak(TRUE, 15);
+                
+                // Add a page
+                $pdf->AddPage();
+                
+                // Set font
+                $pdf->SetFont('helvetica', '', 12);
+                
+                // Add recipe image if available
+                if (!empty($recipe['image_url'])) {
+                    $imagePath = $recipe['image_url'];
+                    
+                    // Handle different image path formats
+                    if (!file_exists($imagePath)) {
+                        // Try with uploads/ prefix if not already present
+                        if (strpos($imagePath, 'uploads/') !== 0) {
+                            $imagePath = 'uploads/' . $imagePath;
+                        }
+                    }
+                    
+                    // Check if image exists and is a valid image file
+                    if (file_exists($imagePath) && @getimagesize($imagePath)) {
+                        try {
+                            // Calculate image dimensions to maintain aspect ratio
+                            list($width, $height) = getimagesize($imagePath);
+                            $maxWidth = 120; // mm
+                            $maxHeight = 60; // mm
+                            
+                            // Calculate scaling
+                            $scaleWidth = $maxWidth / ($width * 0.264583); // Convert pixels to mm
+                            $scaleHeight = $maxHeight / ($height * 0.264583);
+                            $scale = min($scaleWidth, $scaleHeight, 1); // Don't upscale
+                            
+                            $finalWidth = ($width * 0.264583) * $scale;
+                            $finalHeight = ($height * 0.264583) * $scale;
+                            
+                            // Center the image
+                            $x = (210 - $finalWidth) / 2; // A4 width is 210mm
+                            
+                            // Add image with proper scaling
+                            $pdf->Image($imagePath, $x, $pdf->GetY(), $finalWidth, $finalHeight, '', '', '', false, 300, '', false, false, 1, false, false, false);
+                            $pdf->Ln($finalHeight + 5); // Move down after image with some spacing
+                        } catch (Exception $e) {
+                            // If image fails to load, continue without it
+                        }
+                    }
                 }
                 
-                $content .= "\nINSTRUCTIONS:\n";
-                $content .= "=============\n";
-                $content .= $recipe['instructions'] . "\n\n";
+                // Title
+                $pdf->SetFont('helvetica', 'B', 20);
+                $pdf->SetTextColor(46, 125, 50); // Green color
+                $pdf->Cell(0, 15, $recipe['title'], 0, 1, 'C');
+                $pdf->Ln(5);
                 
-                $content .= "Recipe by: " . $recipe['firstName'] . " " . $recipe['lastName'] . "\n";
-                $content .= "Downloaded from FoodFusion\n";
+                // Recipe info section
+                $pdf->SetFont('helvetica', '', 11);
+                $pdf->SetTextColor(100, 100, 100);
                 
-                $filename = preg_replace('/[^a-zA-Z0-9_-]/', '_', $recipe['title']) . '_recipe.txt';
+                $info_html = '<table cellpadding="5" style="border: 1px solid #ddd;">
+                    <tr style="background-color: #f5f5f5;">
+                        <td width="25%" style="border-right: 1px solid #ddd;"><strong>Cooking Time:</strong></td>
+                        <td width="25%" style="border-right: 1px solid #ddd;">' . $recipe['cooking_time'] . ' minutes</td>
+                        <td width="25%" style="border-right: 1px solid #ddd;"><strong>Difficulty:</strong></td>
+                        <td width="25%">' . $recipe['difficulty'] . '</td>
+                    </tr>
+                    <tr>
+                        <td style="border-right: 1px solid #ddd; border-top: 1px solid #ddd;"><strong>Servings:</strong></td>
+                        <td style="border-right: 1px solid #ddd; border-top: 1px solid #ddd;">' . $recipe['servings'] . '</td>
+                        <td style="border-right: 1px solid #ddd; border-top: 1px solid #ddd;"><strong>By:</strong></td>
+                        <td style="border-top: 1px solid #ddd;">' . $recipe['firstName'] . ' ' . $recipe['lastName'] . '</td>
+                    </tr>
+                </table>';
                 
-                header('Content-Type: text/plain');
-                header('Content-Disposition: attachment; filename="' . $filename . '"');
-                header('Content-Length: ' . strlen($content));
-                echo $content;
+                $pdf->writeHTML($info_html, true, false, true, false, '');
+                $pdf->Ln(10);
+                
+                // Description
+                if (!empty($recipe['description'])) {
+                    $pdf->SetFont('helvetica', 'B', 14);
+                    $pdf->SetTextColor(46, 125, 50);
+                    $pdf->Cell(0, 10, 'Description', 0, 1, 'L');
+                    $pdf->SetFont('helvetica', '', 11);
+                    $pdf->SetTextColor(60, 60, 60);
+                    $pdf->MultiCell(0, 8, $recipe['description'], 0, 'L');
+                    $pdf->Ln(5);
+                }
+                
+                // Ingredients section
+                $pdf->SetFont('helvetica', 'B', 14);
+                $pdf->SetTextColor(46, 125, 50);
+                $pdf->Cell(0, 10, 'Ingredients', 0, 1, 'L');
+                
+                $pdf->SetFont('helvetica', '', 11);
+                $pdf->SetTextColor(60, 60, 60);
+                
+                $ingredients_html = '<ul>';
+                foreach ($ingredients as $ingredient) {
+                    $ingredients_html .= '<li style="margin-bottom: 3px;">' . 
+                        $ingredient['quantity'] . ' ' . $ingredient['unit'] . ' ' . $ingredient['name'] . '</li>';
+                }
+                $ingredients_html .= '</ul>';
+                
+                $pdf->writeHTML($ingredients_html, true, false, true, false, '');
+                $pdf->Ln(5);
+                
+                // Instructions section
+                $pdf->SetFont('helvetica', 'B', 14);
+                $pdf->SetTextColor(46, 125, 50);
+                $pdf->Cell(0, 10, 'Instructions', 0, 1, 'L');
+                
+                $pdf->SetFont('helvetica', '', 11);
+                $pdf->SetTextColor(60, 60, 60);
+                
+                // Split instructions by line breaks and number them
+                $instructions = explode("\n", $recipe['instructions']);
+                $instructions_html = '<ol>';
+                foreach ($instructions as $step) {
+                    $step = trim($step);
+                    if (!empty($step)) {
+                        $instructions_html .= '<li style="margin-bottom: 8px;">' . $step . '</li>';
+                    }
+                }
+                $instructions_html .= '</ol>';
+                
+                $pdf->writeHTML($instructions_html, true, false, true, false, '');
+                
+                // Footer
+                $pdf->Ln(10);
+                $pdf->SetFont('helvetica', 'I', 9);
+                $pdf->SetTextColor(150, 150, 150);
+                $pdf->Cell(0, 5, 'Downloaded from FoodFusion - ' . date('Y-m-d'), 0, 1, 'C');
+                
+                $filename = preg_replace('/[^a-zA-Z0-9_-]/', '_', $recipe['title']) . '_recipe.pdf';
+                
+                // Output PDF
+                $pdf->Output($filename, 'D');
                 exit;
             }
         } elseif ($downloadType === 'educational_resource') {
@@ -56,15 +182,45 @@ if (isset($_GET['download']) && isset($_GET['type']) && isset($_GET['id'])) {
             $stmt->execute([$resourceId]);
             $resource = $stmt->fetch();
             
-            if ($resource && file_exists($resource['file_path'])) {
-                // Update download count
-                $stmt = $db->prepare("UPDATE educational_resources SET download_count = download_count + 1 WHERE id = ?");
-                $stmt->execute([$resourceId]);
+            if ($resource) {
+                $filePath = $resource['file_path'];
                 
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="' . basename($resource['file_path']) . '"');
-                readfile($resource['file_path']);
-                exit;
+                // Fix path if it starts with / (remove leading slash)
+                if (strpos($filePath, '/') === 0) {
+                    $filePath = ltrim($filePath, '/');
+                }
+                
+                // Check if file exists
+                if (file_exists($filePath)) {
+                    // Update download count
+                    $stmt = $db->prepare("UPDATE educational_resources SET download_count = download_count + 1 WHERE id = ?");
+                    $stmt->execute([$resourceId]);
+                    
+                    // Set appropriate headers for video files
+                    $fileInfo = pathinfo($filePath);
+                    $extension = strtolower($fileInfo['extension']);
+                    
+                    if ($extension === 'mp4') {
+                        header('Content-Type: video/mp4');
+                    } elseif ($extension === 'avi') {
+                        header('Content-Type: video/x-msvideo');
+                    } elseif ($extension === 'mov') {
+                        header('Content-Type: video/quicktime');
+                    } else {
+                        header('Content-Type: application/octet-stream');
+                    }
+                    
+                    header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+                    header('Content-Length: ' . filesize($filePath));
+                    
+                    // Output file
+                    readfile($filePath);
+                    exit;
+                } else {
+                    // File not found - show error
+                    echo "File not found: " . htmlspecialchars($filePath);
+                    exit;
+                }
             }
         }
     } catch (Exception $e) {
@@ -159,40 +315,50 @@ function sanitizeFilename($filename) {
 }
 ?>
 
-<div class="min-h-screen bg-gray-50">
-    <!-- Header Section -->
-    <div class="bg-gradient-to-r from-green-600 to-green-700 text-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="text-center">
-                <h1 class="text-4xl font-bold mb-4">Culinary Resources</h1>
-                <p class="text-xl text-green-100 mb-8">Downloadable recipe cards, cooking tutorials, instructional videos, and kitchen hacks</p>
+<div class="min-h-screen">
+    <!-- Hero Section -->
+    <section class="relative bg-gradient-to-br from-emerald-100 to-teal-100 py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+                Culinary 
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-green-600">
+                    Resources
+                </span>
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                Downloadable recipe cards, cooking tutorials, instructional videos, and kitchen hacks
+            </p>
                 
-                <!-- Navigation Tabs -->
-                <div class="flex flex-wrap justify-center space-x-1 bg-white/10 rounded-lg p-1 max-w-4xl mx-auto">
-                    <a href="?page=culinary&section=overview" 
-                       class="px-6 py-3 rounded-md font-medium transition-colors <?php echo $section === 'overview' ? 'bg-white text-green-600' : 'text-white hover:bg-white/20'; ?>">
-                        <i class="fas fa-home mr-2"></i>Overview
-                    </a>
-                    <a href="?page=culinary&section=recipe-cards" 
-                       class="px-6 py-3 rounded-md font-medium transition-colors <?php echo $section === 'recipe-cards' ? 'bg-white text-green-600' : 'text-white hover:bg-white/20'; ?>">
-                        <i class="fas fa-file-alt mr-2"></i>Recipe Cards
-                    </a>
-                    <a href="?page=culinary&section=tutorials" 
-                       class="px-6 py-3 rounded-md font-medium transition-colors <?php echo $section === 'tutorials' ? 'bg-white text-green-600' : 'text-white hover:bg-white/20'; ?>">
-                        <i class="fas fa-play mr-2"></i>Video Tutorials
-                    </a>
-                    <a href="?page=culinary&section=videos" 
-                       class="px-6 py-3 rounded-md font-medium transition-colors <?php echo $section === 'videos' ? 'bg-white text-green-600' : 'text-white hover:bg-white/20'; ?>">
-                        <i class="fas fa-video mr-2"></i>Educational Videos
-                    </a>
-                    <a href="?page=culinary&section=kitchen-hacks" 
-                       class="px-6 py-3 rounded-md font-medium transition-colors <?php echo $section === 'kitchen-hacks' ? 'bg-white text-green-600' : 'text-white hover:bg-white/20'; ?>">
-                        <i class="fas fa-lightbulb mr-2"></i>Kitchen Hacks
-                    </a>
-                </div>
+        </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <section class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap justify-center space-x-1 py-4">
+                <a href="?page=culinary&section=overview" 
+                   class="px-6 py-3 rounded-md font-medium transition-colors <?php echo $section === 'overview' ? 'bg-green-600 text-white' : 'text-gray-600 hover:bg-gray-100'; ?>">
+                    <i class="fas fa-home mr-2"></i>Overview
+                </a>
+                <a href="?page=culinary&section=recipe-cards" 
+                   class="px-6 py-3 rounded-md font-medium transition-colors <?php echo $section === 'recipe-cards' ? 'bg-green-600 text-white' : 'text-gray-600 hover:bg-gray-100'; ?>">
+                    <i class="fas fa-file-alt mr-2"></i>Recipe Cards
+                </a>
+                <a href="?page=culinary&section=tutorials" 
+                   class="px-6 py-3 rounded-md font-medium transition-colors <?php echo $section === 'tutorials' ? 'bg-green-600 text-white' : 'text-gray-600 hover:bg-gray-100'; ?>">
+                    <i class="fas fa-play mr-2"></i>Video Tutorials
+                </a>
+                <a href="?page=culinary&section=videos" 
+                   class="px-6 py-3 rounded-md font-medium transition-colors <?php echo $section === 'videos' ? 'bg-green-600 text-white' : 'text-gray-600 hover:bg-gray-100'; ?>">
+                    <i class="fas fa-video mr-2"></i>Educational Videos
+                </a>
+                <a href="?page=culinary&section=kitchen-hacks" 
+                   class="px-6 py-3 rounded-md font-medium transition-colors <?php echo $section === 'kitchen-hacks' ? 'bg-green-600 text-white' : 'text-gray-600 hover:bg-gray-100'; ?>">
+                    <i class="fas fa-lightbulb mr-2"></i>Kitchen Hacks
+                </a>
             </div>
         </div>
-    </div>
+    </section>
 
     <!-- Content Section -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
