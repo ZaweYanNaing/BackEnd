@@ -222,6 +222,132 @@ if (isset($_GET['download']) && isset($_GET['type']) && isset($_GET['id'])) {
                     exit;
                 }
             }
+        } elseif ($downloadType === 'cooking_tip') {
+            // Handle cooking tip downloads as PDF
+            $stmt = $db->prepare("SELECT ct.*, u.firstName, u.lastName 
+                                 FROM cooking_tips ct 
+                                 JOIN users u ON ct.user_id = u.id 
+                                 WHERE ct.id = ?");
+            $stmt->execute([$resourceId]);
+            $tip = $stmt->fetch();
+            
+            if ($tip) {
+                // Create PDF
+                $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+                
+                // Set document information
+                $pdf->SetCreator('FoodFusion');
+                $pdf->SetAuthor('FoodFusion');
+                $pdf->SetTitle('Cooking Tip: ' . $tip['title']);
+                $pdf->SetSubject('Cooking Tip');
+                
+                // Remove default header/footer
+                $pdf->setPrintHeader(false);
+                $pdf->setPrintFooter(false);
+                
+                // Set margins
+                $pdf->SetMargins(15, 15, 15);
+                $pdf->SetAutoPageBreak(TRUE, 15);
+                
+                // Add a page
+                $pdf->AddPage();
+                
+                // Set font
+                $pdf->SetFont('helvetica', '', 12);
+                
+                // Title
+                $pdf->SetFont('helvetica', 'B', 20);
+                $pdf->SetTextColor(46, 125, 50); // Green color
+                $pdf->Cell(0, 15, $tip['title'], 0, 1, 'C');
+                $pdf->Ln(5);
+                
+                // Tip info section
+                $pdf->SetFont('helvetica', '', 11);
+                $pdf->SetTextColor(100, 100, 100);
+                
+                $infoHtml = '<table border="0" cellpadding="5" cellspacing="0" style="width: 100%;">
+                    <tr>
+                        <td style="background-color: #f8f9fa; padding: 8px; border: 1px solid #dee2e6;"><strong>Author:</strong></td>
+                        <td style="background-color: #ffffff; padding: 8px; border: 1px solid #dee2e6;">' . htmlspecialchars($tip['firstName'] . ' ' . $tip['lastName']) . '</td>
+                        <td style="background-color: #f8f9fa; padding: 8px; border: 1px solid #dee2e6;"><strong>Date:</strong></td>
+                        <td style="background-color: #ffffff; padding: 8px; border: 1px solid #dee2e6;">' . date('M d, Y', strtotime($tip['created_at'])) . '</td>
+                    </tr>';
+                
+                if ($tip['prep_time']) {
+                    $infoHtml .= '<tr>
+                        <td style="background-color: #f8f9fa; padding: 8px; border: 1px solid #dee2e6;"><strong>Time:</strong></td>
+                        <td style="background-color: #ffffff; padding: 8px; border: 1px solid #dee2e6;">' . htmlspecialchars($tip['prep_time']) . ' minutes</td>
+                        <td colspan="2"></td>
+                    </tr>';
+                }
+                
+                $infoHtml .= '</table>';
+                
+                $pdf->writeHTML($infoHtml, true, false, true, false, '');
+                $pdf->Ln(10);
+                
+                // Content section
+                $pdf->SetFont('helvetica', 'B', 14);
+                $pdf->SetTextColor(46, 125, 50);
+                $pdf->Cell(0, 10, 'Cooking Tip', 0, 1, 'L');
+                $pdf->Ln(2);
+                
+                $pdf->SetFont('helvetica', '', 11);
+                $pdf->SetTextColor(0, 0, 0);
+                
+                $contentHtml = '<div style="line-height: 1.6;">' . nl2br(htmlspecialchars($tip['content'])) . '</div>';
+                $pdf->writeHTML($contentHtml, true, false, true, false, '');
+                
+                // Footer
+                $pdf->Ln(15);
+                $pdf->SetFont('helvetica', 'I', 9);
+                $pdf->SetTextColor(128, 128, 128);
+                $pdf->Cell(0, 10, 'Downloaded from FoodFusion on ' . date('F j, Y'), 0, 1, 'C');
+                
+                // Generate filename
+                $filename = sanitizeFilename($tip['title']) . '_cooking_tip.pdf';
+                
+                // Output PDF
+                $pdf->Output($filename, 'D');
+                exit;
+            }
+        } elseif ($downloadType === 'video_tutorial') {
+            // Handle video tutorial downloads
+            $stmt = $db->prepare("SELECT * FROM recipes WHERE id = ?");
+            $stmt->execute([$resourceId]);
+            $tutorial = $stmt->fetch();
+            
+            if ($tutorial && !empty($tutorial['video_url'])) {
+                $videoPath = 'uploads/' . $tutorial['video_url'];
+                
+                // Check if video file exists
+                if (file_exists($videoPath)) {
+                    // Set appropriate headers for video files
+                    $fileInfo = pathinfo($videoPath);
+                    $extension = strtolower($fileInfo['extension']);
+                    
+                    if ($extension === 'mp4') {
+                        header('Content-Type: video/mp4');
+                    } elseif ($extension === 'avi') {
+                        header('Content-Type: video/x-msvideo');
+                    } elseif ($extension === 'mov') {
+                        header('Content-Type: video/quicktime');
+                    } else {
+                        header('Content-Type: application/octet-stream');
+                    }
+                    
+                    header('Content-Disposition: attachment; filename="' . basename($videoPath) . '"');
+                    header('Content-Length: ' . filesize($videoPath));
+                    
+                    // Output file
+                    readfile($videoPath);
+                    exit;
+                } else {
+                    // File not found - show error
+                    echo "Video file not found: " . htmlspecialchars($videoPath);
+                    exit;
+                }
+            }
         }
     } catch (Exception $e) {
         // Handle error silently
@@ -457,9 +583,9 @@ function sanitizeFilename($filename) {
                     <?php foreach ($videoTutorials as $tutorial): ?>
                     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                         <div class="relative h-48 bg-gray-900 flex items-center justify-center">
-                            <?php if (strpos($tutorial['video_url'], 'uploads/') === 0): ?>
+                            <?php if (!empty($tutorial['video_url'])): ?>
                             <video class="w-full h-full object-cover" controls>
-                                <source src="<?php echo htmlspecialchars($tutorial['video_url']); ?>" type="video/mp4">
+                                <source src="uploads/<?php echo htmlspecialchars($tutorial['video_url']); ?>" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
                             <?php else: ?>
@@ -473,9 +599,24 @@ function sanitizeFilename($filename) {
                             <h3 class="text-lg font-semibold text-gray-900 mb-2"><?php echo htmlspecialchars($tutorial['title']); ?></h3>
                             <p class="text-gray-600 text-sm mb-4"><?php echo htmlspecialchars(substr($tutorial['description'], 0, 100)) . '...'; ?></p>
                             
-                            <div class="flex items-center justify-between text-sm text-gray-500">
+                            <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
                                 <span><i class="fas fa-user mr-1"></i>by <?php echo htmlspecialchars($tutorial['firstName'] . ' ' . $tutorial['lastName']); ?></span>
                                 <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded"><?php echo $tutorial['difficulty']; ?></span>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <?php if (!empty($tutorial['video_url'])): ?>
+                                <button onclick="toggleVideo(<?php echo $tutorial['id']; ?>)" 
+                                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex-1">
+                                    <i class="fas fa-play mr-2"></i>Watch Video
+                                </button>
+                                <a href="?page=culinary&download=1&type=video_tutorial&id=<?php echo $tutorial['id']; ?>" 
+                                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                    <i class="fas fa-download mr-1"></i>Download
+                                </a>
+                                <?php else: ?>
+                                <span class="text-gray-500 text-sm italic">Video not available</span>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -551,7 +692,7 @@ function sanitizeFilename($filename) {
                                 <h3 class="text-lg font-semibold text-gray-900 mb-2"><?php echo htmlspecialchars($tip['title']); ?></h3>
                                 <p class="text-gray-700 mb-4"><?php echo nl2br(htmlspecialchars($tip['content'])); ?></p>
                                 
-                                <div class="flex items-center justify-between text-sm text-gray-500">
+                                <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
                                     <div class="flex items-center space-x-4">
                                         <span><i class="fas fa-user mr-1"></i>by <?php echo htmlspecialchars($tip['firstName'] . ' ' . $tip['lastName']); ?></span>
                                         <span><i class="fas fa-calendar mr-1"></i><?php echo formatDate($tip['created_at']); ?></span>
@@ -562,6 +703,11 @@ function sanitizeFilename($filename) {
                                     </span>
                                     <?php endif; ?>
                                 </div>
+                                
+                                <a href="?page=culinary&download=1&type=cooking_tip&id=<?php echo $tip['id']; ?>" 
+                                   class="bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center">
+                                    <i class="fas fa-download mr-2"></i>Download PDF
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -584,5 +730,55 @@ function toggleTutorial(id) {
     const tutorial = document.getElementById('tutorial-' + id);
     tutorial.classList.toggle('hidden');
 }
+
+function toggleVideo(id) {
+    const videoContainer = document.getElementById('video-' + id);
+    if (videoContainer) {
+        videoContainer.classList.toggle('hidden');
+    } else {
+        // Create fullscreen video modal
+        const modal = document.createElement('div');
+        modal.id = 'video-modal-' + id;
+        modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="relative max-w-4xl w-full mx-4">
+                <button onclick="closeVideo(${id})" class="absolute -top-10 right-0 text-white text-2xl hover:text-gray-300">
+                    <i class="fas fa-times"></i>
+                </button>
+                <video id="video-player-${id}" class="w-full h-auto" controls autoplay>
+                    <source src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </source>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Find the video source from the tutorial card
+        const tutorialCard = event.target.closest('.bg-white');
+        const videoElement = tutorialCard.querySelector('video source');
+        if (videoElement) {
+            const videoPlayer = document.getElementById('video-player-' + id);
+            videoPlayer.querySelector('source').src = videoElement.src;
+            videoPlayer.load();
+        }
+    }
+}
+
+function closeVideo(id) {
+    const modal = document.getElementById('video-modal-' + id);
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('bg-opacity-75')) {
+        const modal = event.target;
+        modal.remove();
+    }
+});
 </script>
+
+<?php include 'includes/footer.php'; ?>
 
