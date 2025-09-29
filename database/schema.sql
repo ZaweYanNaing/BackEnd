@@ -11,10 +11,14 @@ CREATE TABLE IF NOT EXISTS users (
     location VARCHAR(100),
     website VARCHAR(255),
     profile_image VARCHAR(500),
+    failed_login_attempts INT DEFAULT 0,
+    last_failed_login TIMESTAMP NULL,
+    account_locked_until TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_email (email),
-    INDEX idx_name (firstName, lastName)
+    INDEX idx_name (firstName, lastName),
+    INDEX idx_users_lockout (email, account_locked_until)
 );
 
 -- Create categories table
