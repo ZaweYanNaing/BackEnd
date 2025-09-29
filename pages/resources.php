@@ -85,7 +85,7 @@ include 'includes/header.php';
                 <p class="text-gray-600">Try adjusting your filters or search.</p>
             </div>
 
-            <div id="pagination" class="flex justify-center mt-8 hidden">
+            <div id="pagination" class="hidden justify-center mt-8">
                 <div class="flex items-center gap-2">
                     <button id="prevPage" class="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50">Previous</button>
                     <span id="pageInfo" class="px-4 py-2 text-sm text-gray-600">Page 1 of 1</span>
@@ -255,7 +255,10 @@ async function renderResources() {
     if (total === 0) {
         grid.innerHTML = '';
         noRes.classList.remove('hidden');
-        if (pagination) pagination.classList.add('hidden');
+        if (pagination) {
+            pagination.classList.add('hidden');
+            pagination.classList.remove('flex');
+        }
         return;
     }
     noRes.classList.add('hidden');
@@ -264,6 +267,7 @@ async function renderResources() {
     const totalPages = Math.max(1, Math.ceil(total / limit));
     if (pagination) {
         pagination.classList.remove('hidden');
+        pagination.classList.add('flex');
         pageInfo.textContent = `Page ${state.page} of ${totalPages}`;
         prevBtn.disabled = state.page === 1;
         nextBtn.disabled = state.page === totalPages;
