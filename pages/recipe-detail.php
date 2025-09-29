@@ -10,8 +10,7 @@ if (!$recipe) {
     exit;
 }
 
-// Track recipe view
-trackRecipeView($recipeId, $user['id'] ?? null);
+
 
 // Get recipe reviews
 $reviews = getRecipeReviews($recipeId);

@@ -386,7 +386,7 @@ try {
                 <div class="text-4xl font-bold mb-2">
                     <?php
                     try {
-                        $stmt = $db->prepare("SELECT COUNT(*) as count FROM recipe_views");
+                        $stmt = $db->prepare("SELECT COUNT(*) as count FROM recipe_reviews");
                         $stmt->execute();
                         $result = $stmt->fetch();
                         echo number_format($result['count']);
@@ -395,7 +395,7 @@ try {
                     }
                     ?>
                 </div>
-                <div class="text-green-200">Recipe Views</div>
+                <div class="text-green-200">Total Reviews</div>
             </div>
         </div>
     </div>

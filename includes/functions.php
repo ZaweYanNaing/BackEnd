@@ -311,9 +311,6 @@ function deleteRecipe($id, $userId) {
         $stmt = $db->prepare("DELETE FROM user_favorites WHERE recipe_id = ?");
         $stmt->execute([$id]);
         
-        $stmt = $db->prepare("DELETE FROM recipe_views WHERE recipe_id = ?");
-        $stmt->execute([$id]);
-        
         // Delete recipe
         $stmt = $db->prepare("DELETE FROM recipes WHERE id = ?");
         $stmt->execute([$id]);
@@ -526,35 +523,7 @@ function getUserFavorites($userId) {
     return $stmt->fetchAll();
 }
 
-function trackRecipeView($recipeId, $userId = null) {
-    global $db;
-    
-    $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-    
-    // Check for duplicate view (same user/IP within last 5 minutes)
-    if ($userId) {
-        $stmt = $db->prepare("SELECT id FROM recipe_views 
-                              WHERE recipe_id = ? AND user_id = ? 
-                              AND viewed_at > DATE_SUB(NOW(), INTERVAL 5 MINUTE) 
-                              LIMIT 1");
-        $stmt->execute([$recipeId, $userId]);
-    } else {
-        $stmt = $db->prepare("SELECT id FROM recipe_views 
-                              WHERE recipe_id = ? AND user_id IS NULL AND ip_address = ? 
-                              AND viewed_at > DATE_SUB(NOW(), INTERVAL 5 MINUTE) 
-                              LIMIT 1");
-        $stmt->execute([$recipeId, $ipAddress]);
-    }
-    
-    if ($stmt->fetch()) {
-        return false; // Duplicate view
-    }
-    
-    // Insert new view
-    $stmt = $db->prepare("INSERT INTO recipe_views (recipe_id, user_id, ip_address, viewed_at) VALUES (?, ?, ?, NOW())");
-    $stmt->execute([$recipeId, $userId, $ipAddress]);
-    return true;
-}
+// trackRecipeView removed: recipe_views table deprecated
 
 // Utility functions
 function sanitizeInput($input) {
