@@ -237,58 +237,55 @@ try {
 <!-- Cooking Events Carousel -->
 <section class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-12">
-            Upcoming Cooking Events
-        </h2>
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Upcoming Cooking Events</h2>
+            <?php if (!$isLoggedIn): ?>
+            <p class="text-gray-600">Sign in to create your own community cooking event.</p>
+            <?php else: ?>
+            <button onclick="openCreateEventModal()" class="mt-2 inline-flex items-center px-5 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg">
+                <i class="fas fa-plus mr-2"></i> Create Event
+            </button>
+            <?php endif; ?>
+        </div>
         
         <div class="relative">
             <div class="overflow-hidden rounded-lg">
                 <div class="flex transition-transform duration-500 ease-in-out" id="events-carousel">
                     <?php
-                    // Sample cooking events
-                    $cookingEvents = [
-                        [
-                            'id' => 1,
-                            'title' => "Italian Pasta Making Workshop",
-                            'description' => "Learn to make authentic Italian pasta from scratch with Chef Maria Rossi",
-                            'date' => "2025-02-15",
-                            'location' => "FoodFusion Kitchen Studio",
-                            'imageUrl' => "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop",
-                            'maxParticipants' => 20,
-                            'currentParticipants' => 15
-                        ],
-                        [
-                            'id' => 2,
-                            'title' => "Sushi Rolling Masterclass",
-                            'description' => "Master the art of sushi making with traditional techniques",
-                            'date' => "2025-02-22",
-                            'location' => "FoodFusion Kitchen Studio",
-                            'imageUrl' => "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop",
-                            'maxParticipants' => 15,
-                            'currentParticipants' => 8
-                        ],
-                        [
-                            'id' => 3,
-                            'title' => "Baking Fundamentals",
-                            'description' => "Learn essential baking techniques and create delicious pastries",
-                            'date' => "2025-03-01",
-                            'location' => "FoodFusion Kitchen Studio",
-                            'imageUrl' => "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop",
-                            'maxParticipants' => 25,
-                            'currentParticipants' => 22
-                        ]
-                    ];
+                    // Load upcoming events from DB
+                    $cookingEvents = [];
+                    try {
+                        global $db;
+                        // Show upcoming events; include slight grace window to avoid timezone offsets
+                        $stmt = $db->prepare("SELECT id, title, description, event_date, location, max_participants, current_participants FROM events WHERE event_date >= DATE_SUB(NOW(), INTERVAL 1 DAY) ORDER BY event_date ASC LIMIT 10");
+                        $stmt->execute();
+                        $cookingEvents = $stmt->fetchAll();
+                        if (!$cookingEvents) {
+                            // Fallback to most recent events if none upcoming
+                            $stmt = $db->prepare("SELECT id, title, description, event_date, location, max_participants, current_participants FROM events ORDER BY event_date DESC LIMIT 10");
+                            $stmt->execute();
+                            $cookingEvents = $stmt->fetchAll();
+                        }
+                    } catch (Exception $e) {
+                        $cookingEvents = [];
+                    }
                     ?>
+                    <?php if (empty($cookingEvents)): ?>
+                    <div class="w-full flex-shrink-0 block" data-event-index="0">
+                        <div class="bg-gray-50 rounded-lg p-8">
+                            <div class="text-center text-gray-600">No events yet. <?php echo $isLoggedIn ? 'Be the first to create one!' : 'Sign in to create an event.'; ?></div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                     <?php foreach ($cookingEvents as $index => $event): ?>
                     <div class="w-full flex-shrink-0 <?php echo $index === 0 ? 'block' : 'hidden'; ?>" data-event-index="<?php echo $index; ?>">
                         <div class="bg-gray-50 rounded-lg p-8">
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                                <div>
-                                    <img 
-                                        src="<?php echo $event['imageUrl']; ?>" 
-                                        alt="<?php echo htmlspecialchars($event['title']); ?>"
-                                        class="w-full h-64 object-cover rounded-lg"
-                                    />
+                                <div class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                                    <div class="text-center">
+                                        <i class="fas fa-calendar-alt text-6xl text-green-600 mb-2"></i>
+                                        <div class="text-gray-500">Community Cooking Event</div>
+                                    </div>
                                 </div>
                                 <div>
                                     <h3 class="text-2xl font-bold text-gray-900 mb-4"><?php echo htmlspecialchars($event['title']); ?></h3>
@@ -297,7 +294,7 @@ try {
                                     <div class="space-y-3 mb-6">
                                         <div class="flex items-center text-gray-700">
                                             <i class="fas fa-calendar w-5 h-5 mr-3 text-[#78C841]"></i>
-                                            <span><?php echo date('l, F j, Y', strtotime($event['date'])); ?></span>
+                                            <span><?php echo date('l, F j, Y g:i A', strtotime($event['event_date'])); ?></span>
                                         </div>
                                         <div class="flex items-center text-gray-700">
                                             <i class="fas fa-map-marker-alt w-5 h-5 mr-3 text-[#B4E50D]"></i>
@@ -305,13 +302,19 @@ try {
                                         </div>
                                         <div class="flex items-center text-gray-700">
                                             <i class="fas fa-users w-5 h-5 mr-3 text-[#FF9B2F]"></i>
-                                            <span><?php echo $event['currentParticipants']; ?>/<?php echo $event['maxParticipants']; ?> participants</span>
+                                            <span><?php echo (int)$event['current_participants']; ?>/<?php echo (int)$event['max_participants']; ?> participants</span>
                                         </div>
                                     </div>
                                     
-                                    <button class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium">
+                                    <?php if ($isLoggedIn): ?>
+                                    <button onclick="registerForEvent(<?php echo (int)$event['id']; ?>)" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium">
                                         Register Now
                                     </button>
+                                    <?php else: ?>
+                                    <button onclick="showLoginModal()" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium">
+                                        Sign in to Register
+                                    </button>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -347,6 +350,50 @@ try {
         </div>
     </div>
 </section>
+
+<?php if ($isLoggedIn): ?>
+<!-- Create Event Modal -->
+<div id="createEventModal" class="fixed inset-0 bg-gray-200/50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">Create Event</h3>
+                <button class="text-gray-500 hover:text-gray-700" onclick="closeCreateEventModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="createEventForm" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                    <input type="text" id="eventTitle" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea id="eventDescription" rows="3" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date & Time</label>
+                        <input type="datetime-local" id="eventDate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Max Participants</label>
+                        <input type="number" id="eventMax" min="0" value="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                    <input type="text" id="eventLocation" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
+                </div>
+                
+                <div id="createEventMsg" class="hidden text-sm p-2 rounded-md"></div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" class="px-4 py-2 border border-gray-300 rounded-lg" onclick="closeCreateEventModal()">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+<?php endif; ?>
 
 <!-- Stats Section -->
 <section class="py-16 bg-green-600 text-white">
@@ -419,7 +466,7 @@ try {
 <script>
 // Events carousel functionality
 let currentEventIndex = 0;
-const totalEvents = <?php echo count($cookingEvents); ?>;
+const totalEvents = <?php echo (int)count($cookingEvents); ?>;
 
 function nextEvent() {
     currentEventIndex = (currentEventIndex + 1) % totalEvents;
@@ -460,7 +507,59 @@ function setCurrentEvent(index) {
 }
 
 // Auto-advance events every 5 seconds
-setInterval(nextEvent, 5000);
+if (totalEvents > 1) {
+    setInterval(nextEvent, 5000);
+}
+
+<?php if ($isLoggedIn): ?>
+// Create Event Modal handlers
+function openCreateEventModal(){ document.getElementById('createEventModal').classList.remove('hidden'); }
+function closeCreateEventModal(){ document.getElementById('createEventModal').classList.add('hidden'); }
+
+document.addEventListener('DOMContentLoaded', function(){
+    const form = document.getElementById('createEventForm');
+    if (!form) return;
+    const msg = document.getElementById('createEventMsg');
+    form.addEventListener('submit', async function(e){
+        e.preventDefault();
+        msg.classList.add('hidden');
+        const payload = {
+            title: document.getElementById('eventTitle').value.trim(),
+            description: document.getElementById('eventDescription').value.trim(),
+            event_date: document.getElementById('eventDate').value,
+            location: document.getElementById('eventLocation').value.trim(),
+            max_participants: parseInt(document.getElementById('eventMax').value || '0', 10)
+        };
+        try{
+            const res = await fetch('api/event_create.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const json = await res.json();
+            if (json.success){
+                msg.className = 'text-sm p-2 rounded-md bg-green-50 text-green-700';
+                msg.textContent = 'Event created successfully!';
+                msg.classList.remove('hidden');
+                setTimeout(()=>{ window.location.reload(); }, 800);
+            } else {
+                msg.className = 'text-sm p-2 rounded-md bg-red-50 text-red-700';
+                msg.textContent = json.message || 'Failed to create event';
+                msg.classList.remove('hidden');
+            }
+        } catch(err){
+            msg.className = 'text-sm p-2 rounded-md bg-red-50 text-red-700';
+            msg.textContent = 'An error occurred';
+            msg.classList.remove('hidden');
+        }
+    });
+});
+// Register for event
+async function registerForEvent(eventId){
+    try{
+        const res = await fetch('api/event_register.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event_id: eventId }) });
+        const json = await res.json();
+        showToast(json.message || (json.success ? 'Registered' : 'Failed'), json.success ? 'success' : 'error');
+        if (json.success){ setTimeout(()=>location.reload(), 800); }
+    } catch(e){ showToast('Registration failed', 'error'); }
+}
+<?php endif; ?>
 </script>
 
 <?php include 'includes/footer.php'; ?>
