@@ -170,69 +170,7 @@ try {
     </div>
 </section>
 
-<!-- News Feed Section -->
-<section class="py-16 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-12">
-            Latest News & Updates
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <?php
-            // Sample news feed items
-            $newsFeedItems = [
-                [
-                    'id' => 1,
-                    'title' => "New Seasonal Recipes for Spring",
-                    'content' => "Discover fresh ingredients and vibrant flavors with our latest spring recipe collection.",
-                    'imageUrl' => "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop",
-                    'type' => "recipe_feature",
-                    'date' => "2025-01-15"
-                ],
-                [
-                    'id' => 2,
-                    'title' => "Master the Art of Sourdough Bread",
-                    'content' => "Learn the secrets of perfect sourdough from our community experts.",
-                    'imageUrl' => "https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=400&h=300&fit=crop",
-                    'type' => "cooking_tip",
-                    'date' => "2025-01-14"
-                ],
-                [
-                    'id' => 3,
-                    'title' => "Upcoming Cooking Workshop: Asian Cuisine",
-                    'content' => "Join us for an exciting workshop on traditional Asian cooking techniques.",
-                    'imageUrl' => "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop",
-                    'type' => "event_announcement",
-                    'date' => "2025-01-13"
-                ]
-            ];
-            ?>
-            <?php foreach ($newsFeedItems as $item): ?>
-            <article class="bg-white rounded-lg shadow-md overflow-hidden">
-                <img 
-                    src="<?php echo $item['imageUrl']; ?>" 
-                    alt="<?php echo htmlspecialchars($item['title']); ?>"
-                    class="w-full h-48 object-cover"
-                />
-                <div class="p-6">
-                    <div class="flex items-center mb-2">
-                        <span class="px-2 py-1 text-xs font-medium rounded-full <?php 
-                            echo $item['type'] === 'recipe_feature' ? 'bg-[#78C841]/20 text-[#78C841]' :
-                            ($item['type'] === 'cooking_tip' ? 'bg-[#B4E50D]/20 text-[#B4E50D]' :
-                            ($item['type'] === 'event_announcement' ? 'bg-purple-100 text-purple-800' :
-                            'bg-gray-100 text-gray-800'));
-                        ?>">
-                            <?php echo ucwords(str_replace('_', ' ', $item['type'])); ?>
-                        </span>
-                        <span class="text-sm text-gray-500 ml-auto"><?php echo $item['date']; ?></span>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2"><?php echo htmlspecialchars($item['title']); ?></h3>
-                    <p class="text-gray-600"><?php echo htmlspecialchars($item['content']); ?></p>
-                </div>
-            </article>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</section>
+
 
 <!-- Cooking Events Carousel -->
 <section class="py-16 bg-white">
@@ -242,7 +180,7 @@ try {
             <?php if (!$isLoggedIn): ?>
             <p class="text-gray-600">Sign in to create your own community cooking event.</p>
             <?php else: ?>
-            <button onclick="openCreateEventModal()" class="mt-2 inline-flex items-center px-5 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg">
+            <button onclick="openCreateEventModal()" class="mt-2 inline-flex items-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg">
                 <i class="fas fa-plus mr-2"></i> Create Event
             </button>
             <?php endif; ?>
