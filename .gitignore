@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
 vendor/
+.DS_Store
 
 # Environment files
 .env
