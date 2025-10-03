@@ -108,49 +108,7 @@ try {
         </div>
     </section>
 
-    <!-- Recent Members -->
-    <section class="py-16 bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Recent Community Members</h2>
-                <p class="text-lg text-gray-600">Welcome our newest food enthusiasts</p>
-            </div>
-            
-            <?php if (!empty($recentUsers)): ?>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <?php foreach ($recentUsers as $user): ?>
-                <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                    <?php if ($user['profile_image']): ?>
-                        <img src="uploads/<?php echo $user['profile_image']; ?>" 
-                             alt="Profile" class="w-16 h-16 rounded-full mx-auto mb-4 object-cover">
-                    <?php else: ?>
-                        <div class="w-16 h-16 rounded-full mx-auto mb-4 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                            <i class="fas fa-user text-white text-2xl"></i>
-                        </div>
-                    <?php endif; ?>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-1">
-                        <?php echo htmlspecialchars($user['firstName'] . ' ' . $user['lastName']); ?>
-                    </h3>
-                    <p class="text-sm text-gray-500 mb-2">
-                        Joined <?php echo formatDate($user['created_at']); ?>
-                    </p>
-                    <div class="flex justify-center space-x-2">
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            New Member
-                        </span>
-                    </div>
-                </div>
-                <?php endforeach; ?>
-            </div>
-            <?php else: ?>
-            <div class="text-center py-12">
-                <i class="fas fa-users text-6xl text-gray-300 mb-4"></i>
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">No members yet</h3>
-                <p class="text-gray-600">Be the first to join our community!</p>
-            </div>
-            <?php endif; ?>
-        </div>
-    </section>
+
 
     <!-- Cooking Tips Section -->
     <section class="py-16 bg-white">

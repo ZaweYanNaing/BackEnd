@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS events (
     location VARCHAR(255) NOT NULL,
     max_participants INT DEFAULT 0,
     current_participants INT DEFAULT 0,
+    image_url VARCHAR(500) NULL,
     created_by INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

@@ -8,7 +8,7 @@ include 'includes/header.php';
     <section class="relative bg-gradient-to-br from-emerald-100 to-teal-100 py-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-                Get in 
+                Get in
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-green-600">
                     Touch
                 </span>
@@ -26,34 +26,34 @@ include 'includes/header.php';
                 <!-- Contact Form -->
                 <div>
                     <h2 class="text-3xl font-bold text-gray-900 mb-6">Send us a Message</h2>
-                    
+
                     <!-- Success/Error Messages -->
                     <div id="contactMessage" class="hidden mb-6 p-4 rounded-lg"></div>
-                    
+
                     <form id="contactForm" class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
                                 <input type="text" id="firstName" name="firstName" required
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                             </div>
                             <div>
                                 <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
                                 <input type="text" id="lastName" name="lastName" required
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                             </div>
                         </div>
-                        
+
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                             <input type="email" id="email" name="email" required
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                         </div>
-                        
+
                         <div>
                             <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">Subject</label>
                             <select id="subject" name="subject" required
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                                 <option value="">Select a subject</option>
                                 <option value="general">General Inquiry</option>
                                 <option value="support">Technical Support</option>
@@ -62,16 +62,16 @@ include 'includes/header.php';
                                 <option value="other">Other</option>
                             </select>
                         </div>
-                        
+
                         <div>
                             <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Message</label>
                             <textarea id="message" name="message" rows="6" required
-                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                      placeholder="Tell us how we can help you..."></textarea>
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                placeholder="Tell us how we can help you..."></textarea>
                         </div>
-                        
+
                         <button type="submit" id="submitBtn"
-                                class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                             <span id="submitText">
                                 <i class="fas fa-paper-plane mr-2"></i>
                                 Send Message
@@ -109,7 +109,7 @@ include 'includes/header.php';
                                 <h3 class="text-lg font-semibold text-gray-900 mb-1">Call Us</h3>
                                 <p class="text-gray-600 mb-2">Monday - Friday, 9 AM - 6 PM EST</p>
                                 <a href="tel:+1234567890" class="text-green-600 hover:text-green-700">
-                                    +1 (234) 567-890
+                                    +959 795564829
                                 </a>
                             </div>
                         </div>
@@ -122,9 +122,9 @@ include 'includes/header.php';
                                 <h3 class="text-lg font-semibold text-gray-900 mb-1">Visit Us</h3>
                                 <p class="text-gray-600 mb-2">Our headquarters</p>
                                 <address class="text-green-600 not-italic">
-                                    123 Culinary Street<br>
-                                    Food City, FC 12345<br>
-                                    United States
+                                    90 Street<br>
+                                    Yangon City, FC 12345<br>
+                                    Myanmar
                                 </address>
                             </div>
                         </div>
@@ -148,16 +148,16 @@ include 'includes/header.php';
                     <div class="mt-8">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Follow Us</h3>
                         <div class="flex space-x-4">
-                            <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-green-100 transition-colors">
+                            <a href="https://www.facebook.com" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-green-100 transition-colors">
                                 <i class="fab fa-facebook-f text-gray-600"></i>
                             </a>
-                            <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-green-100 transition-colors">
+                            <a href="https://www.x.com" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-green-100 transition-colors">
                                 <i class="fab fa-twitter text-gray-600"></i>
                             </a>
-                            <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-green-100 transition-colors">
+                            <a href="https://www.instagram.com" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-green-100 transition-colors">
                                 <i class="fab fa-instagram text-gray-600"></i>
                             </a>
-                            <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-green-100 transition-colors">
+                            <a href="https://www.youtube.com" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-green-100 transition-colors">
                                 <i class="fab fa-youtube text-gray-600"></i>
                             </a>
                         </div>
@@ -174,7 +174,7 @@ include 'includes/header.php';
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
                 <p class="text-lg text-gray-600">Find answers to common questions</p>
             </div>
-            
+
             <div class="max-w-3xl mx-auto space-y-6">
                 <div class="bg-white rounded-lg shadow-md">
                     <button class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors" onclick="toggleFAQ(this)">
@@ -183,8 +183,8 @@ include 'includes/header.php';
                     </button>
                     <div class="px-6 pb-4 hidden">
                         <p class="text-gray-600">
-                            Creating an account is easy! Click the "Register" button in the top navigation, 
-                            fill out the registration form with your details, and you'll be ready to start 
+                            Creating an account is easy! Click the "Register" button in the top navigation,
+                            fill out the registration form with your details, and you'll be ready to start
                             sharing recipes and connecting with our community.
                         </p>
                     </div>
@@ -197,8 +197,8 @@ include 'includes/header.php';
                     </button>
                     <div class="px-6 pb-4 hidden">
                         <p class="text-gray-600">
-                            Once you're logged in, click on "Recipes" in the navigation, then "Create Recipe". 
-                            Fill out the recipe form with all the details including ingredients, instructions, 
+                            Once you're logged in, click on "Recipes" in the navigation, then "Create Recipe".
+                            Fill out the recipe form with all the details including ingredients, instructions,
                             cooking time, and upload a photo. Your recipe will be published and visible to the community.
                         </p>
                     </div>
@@ -211,8 +211,8 @@ include 'includes/header.php';
                     </button>
                     <div class="px-6 pb-4 hidden">
                         <p class="text-gray-600">
-                            Yes! FoodFusion is completely free to use. You can browse recipes, create your own, 
-                            save favorites, and participate in our community without any cost. We believe good 
+                            Yes! FoodFusion is completely free to use. You can browse recipes, create your own,
+                            save favorites, and participate in our community without any cost. We believe good
                             food knowledge should be accessible to everyone.
                         </p>
                     </div>
@@ -225,8 +225,8 @@ include 'includes/header.php';
                     </button>
                     <div class="px-6 pb-4 hidden">
                         <p class="text-gray-600">
-                            If you come across content that violates our community guidelines, you can report it 
-                            by clicking the "Report" button on the recipe or comment. Our moderation team will 
+                            If you come across content that violates our community guidelines, you can report it
+                            by clicking the "Report" button on the recipe or comment. Our moderation team will
                             review the report and take appropriate action.
                         </p>
                     </div>
@@ -239,7 +239,7 @@ include 'includes/header.php';
                     </button>
                     <div class="px-6 pb-4 hidden">
                         <p class="text-gray-600">
-                            Absolutely! You can edit or delete your own recipes at any time. Go to your profile, 
+                            Absolutely! You can edit or delete your own recipes at any time. Go to your profile,
                             click on "My Recipes", and you'll see options to edit or delete each recipe you've created.
                         </p>
                     </div>
@@ -255,22 +255,22 @@ include 'includes/header.php';
             <p class="text-xl text-green-100 mb-8 max-w-3xl mx-auto">
                 Don't hesitate to reach out! We're here to help and love hearing from our community.
             </p>
-            
+
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="mailto:hello@foodfusion.com" class="bg-white hover:bg-gray-100 text-green-600 px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center">
                     <i class="fas fa-envelope mr-2"></i>
                     Email Us
                 </a>
                 <?php if (!isset($_SESSION['user_id'])): ?>
-                <button onclick="showSignupModal()" class="bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center border-2 border-white">
-                    <i class="fas fa-user-plus mr-2"></i>
-                    Join Community
-                </button>
+                    <button onclick="showSignupModal()" class="bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center border-2 border-white">
+                        <i class="fas fa-user-plus mr-2"></i>
+                        Join Community
+                    </button>
                 <?php else: ?>
-                <a href="index.php?page=recipes" class="bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center border-2 border-white">
-                    <i class="fas fa-utensils mr-2"></i>
-                    Browse Recipes
-                </a>
+                    <a href="index.php?page=recipes" class="bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-lg text-lg font-medium inline-flex items-center justify-center border-2 border-white">
+                        <i class="fas fa-utensils mr-2"></i>
+                        Browse Recipes
+                    </a>
                 <?php endif; ?>
             </div>
         </div>
@@ -278,88 +278,88 @@ include 'includes/header.php';
 </div>
 
 <script>
-function toggleFAQ(button) {
-    const content = button.nextElementSibling;
-    const icon = button.querySelector('i');
-    
-    if (content.classList.contains('hidden')) {
-        content.classList.remove('hidden');
-        icon.style.transform = 'rotate(180deg)';
-    } else {
-        content.classList.add('hidden');
-        icon.style.transform = 'rotate(0deg)';
+    function toggleFAQ(button) {
+        const content = button.nextElementSibling;
+        const icon = button.querySelector('i');
+
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            icon.style.transform = 'rotate(180deg)';
+        } else {
+            content.classList.add('hidden');
+            icon.style.transform = 'rotate(0deg)';
+        }
     }
-}
 
-// Contact form handling
-document.addEventListener('DOMContentLoaded', function() {
-    const contactForm = document.getElementById('contactForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const submitText = document.getElementById('submitText');
-    const submitLoading = document.getElementById('submitLoading');
-    const contactMessage = document.getElementById('contactMessage');
+    // Contact form handling
+    document.addEventListener('DOMContentLoaded', function() {
+        const contactForm = document.getElementById('contactForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const submitLoading = document.getElementById('submitLoading');
+        const contactMessage = document.getElementById('contactMessage');
 
-    contactForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        // Show loading state
-        submitBtn.disabled = true;
-        submitText.classList.add('hidden');
-        submitLoading.classList.remove('hidden');
-        contactMessage.classList.add('hidden');
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-        // Get form data
-        const formData = new FormData(contactForm);
-        const data = {
-            firstName: formData.get('firstName'),
-            lastName: formData.get('lastName'),
-            email: formData.get('email'),
-            subject: formData.get('subject'),
-            message: formData.get('message')
-        };
+            // Show loading state
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            submitLoading.classList.remove('hidden');
+            contactMessage.classList.add('hidden');
 
-        try {
-            console.log('Sending data:', data);
-            const response = await fetch('contact_process.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
+            // Get form data
+            const formData = new FormData(contactForm);
+            const data = {
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                subject: formData.get('subject'),
+                message: formData.get('message')
+            };
 
-            console.log('Response status:', response.status);
-            const result = await response.json();
-            console.log('Response data:', result);
+            try {
+                console.log('Sending data:', data);
+                const response = await fetch('contact_process.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
 
-            if (result.success) {
-                // Show success message
-                contactMessage.className = 'mb-6 p-4 rounded-lg bg-green-100 border border-green-400 text-green-700';
-                contactMessage.textContent = result.message;
-                contactMessage.classList.remove('hidden');
-                
-                // Reset form
-                contactForm.reset();
-            } else {
+                console.log('Response status:', response.status);
+                const result = await response.json();
+                console.log('Response data:', result);
+
+                if (result.success) {
+                    // Show success message
+                    contactMessage.className = 'mb-6 p-4 rounded-lg bg-green-100 border border-green-400 text-green-700';
+                    contactMessage.textContent = result.message;
+                    contactMessage.classList.remove('hidden');
+
+                    // Reset form
+                    contactForm.reset();
+                } else {
+                    // Show error message
+                    contactMessage.className = 'mb-6 p-4 rounded-lg bg-red-100 border border-red-400 text-red-700';
+                    contactMessage.textContent = result.message;
+                    contactMessage.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error:', error);
                 // Show error message
                 contactMessage.className = 'mb-6 p-4 rounded-lg bg-red-100 border border-red-400 text-red-700';
-                contactMessage.textContent = result.message;
+                contactMessage.textContent = 'An error occurred while sending your message. Please try again.';
                 contactMessage.classList.remove('hidden');
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitText.classList.remove('hidden');
+                submitLoading.classList.add('hidden');
             }
-        } catch (error) {
-            console.error('Error:', error);
-            // Show error message
-            contactMessage.className = 'mb-6 p-4 rounded-lg bg-red-100 border border-red-400 text-red-700';
-            contactMessage.textContent = 'An error occurred while sending your message. Please try again.';
-            contactMessage.classList.remove('hidden');
-        } finally {
-            // Reset button state
-            submitBtn.disabled = false;
-            submitText.classList.remove('hidden');
-            submitLoading.classList.add('hidden');
-        }
+        });
     });
-});
 </script>
 
 <?php include 'includes/footer.php'; ?>

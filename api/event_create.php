@@ -37,6 +37,45 @@ try {
         exit;
     }
 
+    // Handle image upload
+    $imageUrl = null;
+    if (isset($_FILES['event_image']) && $_FILES['event_image']['error'] === UPLOAD_ERR_OK) {
+        $file = $_FILES['event_image'];
+        
+        // Validate file type
+        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        $fileType = mime_content_type($file['tmp_name']);
+        
+        if (in_array($fileType, $allowedTypes)) {
+            // Validate file size (max 5MB)
+            $maxSize = 5 * 1024 * 1024; // 5MB
+            if ($file['size'] <= $maxSize) {
+                // Generate unique filename
+                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $filename = 'event_' . $_SESSION['user_id'] . '_' . time() . '_' . uniqid() . '.' . $extension;
+                $uploadPath = __DIR__ . '/../uploads/' . $filename;
+                
+                // Create uploads directory if it doesn't exist
+                if (!is_dir(__DIR__ . '/../uploads/')) {
+                    mkdir(__DIR__ . '/../uploads/', 0755, true);
+                }
+                
+                if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+                    $imageUrl = $filename;
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Failed to upload image']);
+                    exit;
+                }
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Image too large. Maximum size is 5MB.']);
+                exit;
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.']);
+            exit;
+        }
+    }
+
     // Normalize event date to MySQL DATETIME
     $ts = strtotime($eventDate);
     if ($ts === false) {
@@ -46,13 +85,14 @@ try {
     $eventDateMysql = date('Y-m-d H:i:s', $ts);
 
     global $db;
-    $stmt = $db->prepare("INSERT INTO events (title, description, event_date, location, max_participants, current_participants, created_by) VALUES (?, ?, ?, ?, ?, 0, ?)");
+    $stmt = $db->prepare("INSERT INTO events (title, description, event_date, location, max_participants, current_participants, image_url, created_by) VALUES (?, ?, ?, ?, ?, 0, ?, ?)");
     $ok = $stmt->execute([
         $title,
         $description,
         $eventDateMysql,
         $location,
         max(0, $maxParticipants),
+        $imageUrl,
         $_SESSION['user_id']
     ]);
 

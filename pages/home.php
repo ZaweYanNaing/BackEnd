@@ -11,6 +11,7 @@ $trendingRecipes = getAllRecipes(['trending' => true, 'limit' => 3]);
 
 // Get cooking tips
 $cookingTips = [];
+$recentUsers = [];
 try {
     global $db;
     $stmt = $db->prepare("SELECT ct.*, u.firstName, u.lastName 
@@ -20,6 +21,11 @@ try {
                           LIMIT 3");
     $stmt->execute();
     $cookingTips = $stmt->fetchAll();
+    
+    // Get recent users
+    $stmt = $db->prepare("SELECT firstName, lastName, profile_image, created_at FROM users ORDER BY created_at DESC LIMIT 6");
+    $stmt->execute();
+    $recentUsers = $stmt->fetchAll();
 } catch (Exception $e) {
     // Handle error silently
 }
@@ -29,7 +35,7 @@ try {
 <section class="relative bg-gradient-to-br from-emerald-100 to-teal-100 py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-            Welcome to{' '}
+            Welcome to
             <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-green-600">
                 FoodFusion
             </span>
@@ -110,68 +116,53 @@ try {
     </div>
 </section>
 
-<!-- Trending Recipes Section -->
+
+
+
+
+<!-- Recent Community Members -->
 <section class="py-16 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Discover Amazing Recipes
-            </h2>
-            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                Explore trending, popular, and recently added recipes from our community
-            </p>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Recent Community Members</h2>
+            <p class="text-lg text-gray-600">Welcome our newest food enthusiasts</p>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Trending Recipes -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center mb-4">
-                    <i class="fas fa-trending-up w-6 h-6 text-[#78C841] mr-2"></i>
-                    <h3 class="text-xl font-semibold text-gray-900">Trending Now</h3>
-                </div>
-                <p class="text-gray-600 mb-4">
-                    Most popular recipes this week based on views, ratings, and likes
+        <?php if (!empty($recentUsers)): ?>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <?php foreach ($recentUsers as $user): ?>
+            <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                <?php if ($user['profile_image']): ?>
+                    <img src="uploads/<?php echo $user['profile_image']; ?>" 
+                         alt="Profile" class="w-16 h-16 rounded-full mx-auto mb-4 object-cover">
+                <?php else: ?>
+                    <div class="w-16 h-16 rounded-full mx-auto mb-4 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                        <i class="fas fa-user text-white text-2xl"></i>
+                    </div>
+                <?php endif; ?>
+                <h3 class="text-lg font-semibold text-gray-900 mb-1">
+                    <?php echo htmlspecialchars($user['firstName'] . ' ' . $user['lastName']); ?>
+                </h3>
+                <p class="text-sm text-gray-500 mb-2">
+                    Joined <?php echo formatDate($user['created_at']); ?>
                 </p>
-                <a href="index.php?page=recipes&filter=trending" 
-                   class="w-full bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 font-medium inline-flex items-center justify-center">
-                    View Trending
-                </a>
-            </div>
-
-            <!-- Popular Recipes -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center mb-4">
-                    <i class="fas fa-fire w-6 h-6 text-orange-500 mr-2"></i>
-                    <h3 class="text-xl font-semibold text-gray-900">Most Popular</h3>
+                <div class="flex justify-center space-x-2">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        New Member
+                    </span>
                 </div>
-                <p class="text-gray-600 mb-4">
-                    Highest-rated and most-liked recipes from our community
-                </p>
-                <a href="index.php?page=recipes&filter=popular" 
-                   class="w-full bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 font-medium inline-flex items-center justify-center">
-                    View Popular
-                </a>
             </div>
-
-            <!-- Recent Recipes -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center mb-4">
-                    <i class="fas fa-clock w-6 h-6 text-blue-500 mr-2"></i>
-                    <h3 class="text-xl font-semibold text-gray-900">Recently Added</h3>
-                </div>
-                <p class="text-gray-600 mb-4">
-                    Fresh recipes just added by our community members
-                </p>
-                <a href="index.php?page=recipes&filter=recent" 
-                   class="w-full bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 font-medium inline-flex items-center justify-center">
-                    View Recent
-                </a>
-            </div>
+            <?php endforeach; ?>
         </div>
+        <?php else: ?>
+        <div class="text-center py-12">
+            <i class="fas fa-users text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No members yet</h3>
+            <p class="text-gray-600">Be the first to join our community!</p>
+        </div>
+        <?php endif; ?>
     </div>
 </section>
-
-
 
 <!-- Cooking Events Carousel -->
 <section class="py-16 bg-white">
@@ -196,12 +187,12 @@ try {
                     try {
                         global $db;
                         // Show upcoming events; include slight grace window to avoid timezone offsets
-                        $stmt = $db->prepare("SELECT id, title, description, event_date, location, max_participants, current_participants FROM events WHERE event_date >= DATE_SUB(NOW(), INTERVAL 1 DAY) ORDER BY event_date ASC LIMIT 10");
+                        $stmt = $db->prepare("SELECT id, title, description, event_date, location, max_participants, current_participants, image_url FROM events WHERE event_date >= DATE_SUB(NOW(), INTERVAL 1 DAY) ORDER BY event_date ASC LIMIT 10");
                         $stmt->execute();
                         $cookingEvents = $stmt->fetchAll();
                         if (!$cookingEvents) {
                             // Fallback to most recent events if none upcoming
-                            $stmt = $db->prepare("SELECT id, title, description, event_date, location, max_participants, current_participants FROM events ORDER BY event_date DESC LIMIT 10");
+                            $stmt = $db->prepare("SELECT id, title, description, event_date, location, max_participants, current_participants, image_url FROM events ORDER BY event_date DESC LIMIT 10");
                             $stmt->execute();
                             $cookingEvents = $stmt->fetchAll();
                         }
@@ -220,11 +211,19 @@ try {
                     <div class="w-full flex-shrink-0 <?php echo $index === 0 ? 'block' : 'hidden'; ?>" data-event-index="<?php echo $index; ?>">
                         <div class="bg-gray-50 rounded-lg p-8">
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                                <div class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                                    <div class="text-center">
-                                        <i class="fas fa-calendar-alt text-6xl text-green-600 mb-2"></i>
-                                        <div class="text-gray-500">Community Cooking Event</div>
-                                    </div>
+                                <div class="w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
+                                    <?php if (!empty($event['image_url'])): ?>
+                                        <img src="uploads/<?php echo htmlspecialchars($event['image_url']); ?>" 
+                                             alt="<?php echo htmlspecialchars($event['title']); ?>" 
+                                             class="w-full h-full object-cover">
+                                    <?php else: ?>
+                                        <div class="w-full h-full flex items-center justify-center">
+                                            <div class="text-center">
+                                                <i class="fas fa-calendar-alt text-6xl text-green-600 mb-2"></i>
+                                                <div class="text-gray-500">Community Cooking Event</div>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                                 <div>
                                     <h3 class="text-2xl font-bold text-gray-900 mb-4"><?php echo htmlspecialchars($event['title']); ?></h3>
@@ -299,7 +298,7 @@ try {
                 <h3 class="text-lg font-semibold text-gray-900">Create Event</h3>
                 <button class="text-gray-500 hover:text-gray-700" onclick="closeCreateEventModal()"><i class="fas fa-times"></i></button>
             </div>
-            <form id="createEventForm" class="p-6 space-y-4">
+            <form id="createEventForm" class="p-6 space-y-4" enctype="multipart/form-data">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
                     <input type="text" id="eventTitle" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
@@ -321,6 +320,14 @@ try {
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
                     <input type="text" id="eventLocation" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" />
+                </div>
+                
+                <!-- Event Image Upload -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Event Image (Optional)</label>
+                    <input type="file" id="eventImage" name="event_image" accept="image/*"
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                    <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF, WebP up to 5MB</p>
                 </div>
                 
                 <div id="createEventMsg" class="hidden text-sm p-2 rounded-md"></div>
@@ -452,25 +459,68 @@ if (totalEvents > 1) {
 
 <?php if ($isLoggedIn): ?>
 // Create Event Modal handlers
-function openCreateEventModal(){ document.getElementById('createEventModal').classList.remove('hidden'); }
-function closeCreateEventModal(){ document.getElementById('createEventModal').classList.add('hidden'); }
+function openCreateEventModal(){ 
+    document.getElementById('createEventModal').classList.remove('hidden'); 
+}
+function closeCreateEventModal(){ 
+    document.getElementById('createEventModal').classList.add('hidden');
+    // Reset form
+    document.getElementById('createEventForm').reset();
+    document.getElementById('createEventMsg').classList.add('hidden');
+}
 
 document.addEventListener('DOMContentLoaded', function(){
     const form = document.getElementById('createEventForm');
     if (!form) return;
     const msg = document.getElementById('createEventMsg');
+    
+    // Image file validation
+    const eventImageInput = document.getElementById('eventImage');
+    
+    eventImageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        
+        if (file) {
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please select a valid image file (JPEG, PNG, GIF, or WebP).');
+                this.value = '';
+                return;
+            }
+            
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB.');
+                this.value = '';
+                return;
+            }
+        }
+    });
+    
     form.addEventListener('submit', async function(e){
         e.preventDefault();
         msg.classList.add('hidden');
-        const payload = {
-            title: document.getElementById('eventTitle').value.trim(),
-            description: document.getElementById('eventDescription').value.trim(),
-            event_date: document.getElementById('eventDate').value,
-            location: document.getElementById('eventLocation').value.trim(),
-            max_participants: parseInt(document.getElementById('eventMax').value || '0', 10)
-        };
+        
+        // Use FormData to handle file upload
+        const formData = new FormData();
+        formData.append('title', document.getElementById('eventTitle').value.trim());
+        formData.append('description', document.getElementById('eventDescription').value.trim());
+        formData.append('event_date', document.getElementById('eventDate').value);
+        formData.append('location', document.getElementById('eventLocation').value.trim());
+        formData.append('max_participants', parseInt(document.getElementById('eventMax').value || '0', 10));
+        
+        // Add image file if selected
+        const imageFile = document.getElementById('eventImage').files[0];
+        if (imageFile) {
+            formData.append('event_image', imageFile);
+        }
+        
         try{
-            const res = await fetch('api/event_create.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const res = await fetch('api/event_create.php', { 
+                method: 'POST', 
+                body: formData // Don't set Content-Type header, let browser set it with boundary
+            });
             const json = await res.json();
             if (json.success){
                 msg.className = 'text-sm p-2 rounded-md bg-green-50 text-green-700';
