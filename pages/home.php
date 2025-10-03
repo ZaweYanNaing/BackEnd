@@ -180,7 +180,7 @@ try {
         
         <div class="relative">
             <div class="overflow-hidden rounded-lg">
-                <div class="flex transition-transform duration-500 ease-in-out" id="events-carousel">
+                <div class="flex" id="events-carousel" style="transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);">
                     <?php
                     // Load upcoming events from DB
                     $cookingEvents = [];
@@ -208,7 +208,7 @@ try {
                     </div>
                     <?php endif; ?>
                     <?php foreach ($cookingEvents as $index => $event): ?>
-                    <div class="w-full flex-shrink-0 <?php echo $index === 0 ? 'block' : 'hidden'; ?>" data-event-index="<?php echo $index; ?>">
+                    <div class="w-full flex-shrink-0" data-event-index="<?php echo $index; ?>">
                         <div class="bg-gray-50 rounded-lg p-8">
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                                 <div class="w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
@@ -264,24 +264,25 @@ try {
             <!-- Navigation Arrows -->
             <button
                 onclick="prevEvent()"
-                class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors"
+                class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all duration-300 hover:scale-110 z-10"
             >
-                <i class="fas fa-chevron-left w-6 h-6 text-gray-600"></i>
+                <i class="fas fa-chevron-left w-5 h-5 text-gray-600"></i>
             </button>
             <button
                 onclick="nextEvent()"
-                class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors"
+                class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all duration-300 hover:scale-110 z-10"
             >
-                <i class="fas fa-chevron-right w-6 h-6 text-gray-600"></i>
+                <i class="fas fa-chevron-right w-5 h-5 text-gray-600"></i>
             </button>
             
             <!-- Dots Indicator -->
-            <div class="flex justify-center mt-6 space-x-2">
+            <div class="flex justify-center mt-8 space-x-3">
                 <?php foreach ($cookingEvents as $index => $event): ?>
                 <button
                     onclick="setCurrentEvent(<?php echo $index; ?>)"
-                    class="w-3 h-3 rounded-full transition-colors <?php echo $index === 0 ? 'bg-[#78C841]' : 'bg-gray-300'; ?>"
+                    class="w-3 h-3 rounded-full transition-all duration-300 hover:scale-125 <?php echo $index === 0 ? 'bg-[#78C841] shadow-lg' : 'bg-gray-300 hover:bg-gray-400'; ?>"
                     data-dot-index="<?php echo $index; ?>"
+                    style="transition: all 0.3s ease;"
                 ></button>
                 <?php endforeach; ?>
             </div>
@@ -413,49 +414,115 @@ try {
 // Events carousel functionality
 let currentEventIndex = 0;
 const totalEvents = <?php echo (int)count($cookingEvents); ?>;
+let isTransitioning = false;
 
 function nextEvent() {
+    if (isTransitioning || totalEvents <= 1) return;
     currentEventIndex = (currentEventIndex + 1) % totalEvents;
     setCurrentEvent(currentEventIndex);
 }
 
 function prevEvent() {
+    if (isTransitioning || totalEvents <= 1) return;
     currentEventIndex = (currentEventIndex - 1 + totalEvents) % totalEvents;
     setCurrentEvent(currentEventIndex);
 }
 
 function setCurrentEvent(index) {
+    if (isTransitioning) return;
+    
+    isTransitioning = true;
     currentEventIndex = index;
     
-    // Hide all events
-    document.querySelectorAll('[data-event-index]').forEach(event => {
-        event.classList.add('hidden');
-        event.classList.remove('block');
-    });
-    
-    // Show current event
-    const currentEvent = document.querySelector(`[data-event-index="${index}"]`);
-    if (currentEvent) {
-        currentEvent.classList.remove('hidden');
-        currentEvent.classList.add('block');
+    const carousel = document.getElementById('events-carousel');
+    if (carousel) {
+        // Calculate the transform value
+        const translateX = -index * 100;
+        carousel.style.transform = `translateX(${translateX}%)`;
+        
+        // Add smooth transition effect
+        carousel.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        
+        // Reset transition flag after animation completes
+        setTimeout(() => {
+            isTransitioning = false;
+        }, 600);
     }
     
-    // Update dots
+    // Update dots with smooth transition
     document.querySelectorAll('[data-dot-index]').forEach((dot, dotIndex) => {
+        dot.style.transition = 'all 0.3s ease';
         if (dotIndex === index) {
             dot.classList.remove('bg-gray-300');
             dot.classList.add('bg-[#78C841]');
+            dot.style.transform = 'scale(1.2)';
         } else {
             dot.classList.remove('bg-[#78C841]');
             dot.classList.add('bg-gray-300');
+            dot.style.transform = 'scale(1)';
         }
     });
 }
 
 // Auto-advance events every 5 seconds
+let autoAdvanceInterval;
 if (totalEvents > 1) {
-    setInterval(nextEvent, 5000);
+    autoAdvanceInterval = setInterval(nextEvent, 5000);
 }
+
+// Pause auto-advance on hover
+const carouselContainer = document.querySelector('.relative');
+if (carouselContainer && totalEvents > 1) {
+    carouselContainer.addEventListener('mouseenter', () => {
+        clearInterval(autoAdvanceInterval);
+    });
+    
+    carouselContainer.addEventListener('mouseleave', () => {
+        autoAdvanceInterval = setInterval(nextEvent, 5000);
+    });
+}
+
+// Add touch/swipe support for mobile
+let touchStartX = 0;
+let touchEndX = 0;
+
+const carousel = document.getElementById('events-carousel');
+if (carousel && totalEvents > 1) {
+    carousel.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+
+    carousel.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    });
+
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        const diff = touchStartX - touchEndX;
+        
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+                // Swipe left - next event
+                nextEvent();
+            } else {
+                // Swipe right - previous event
+                prevEvent();
+            }
+        }
+    }
+}
+
+// Add keyboard navigation
+document.addEventListener('keydown', (e) => {
+    if (totalEvents > 1) {
+        if (e.key === 'ArrowLeft') {
+            prevEvent();
+        } else if (e.key === 'ArrowRight') {
+            nextEvent();
+        }
+    }
+});
 
 <?php if ($isLoggedIn): ?>
 // Create Event Modal handlers
