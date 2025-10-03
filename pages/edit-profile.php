@@ -80,7 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $user = getUserById($user['id']); // Refresh user data
                     $_SESSION['toast_message'] = 'Profile updated successfully!';
                     $_SESSION['toast_type'] = 'success';
-                    redirect('index.php?page=profile');
+                    echo '<script>window.location.href = "index.php?page=profile";</script>';
+                    exit();
                 } else {
                     $error = 'Failed to update profile. Please try again.';
                 }
