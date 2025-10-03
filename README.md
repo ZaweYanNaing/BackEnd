@@ -8,7 +8,7 @@ A comprehensive culinary platform built with PHP, MySQL, and TailwindCSS. This i
 - **Create, Read, Update, Delete** recipes
 - **Rich recipe details** including ingredients, instructions, cooking time, difficulty level
 - **Image upload** support for recipe photos
-- **Categorization** by food categories and cuisine types
+- **Categorization** by dietary preferences and cuisine types
 - **Search and filtering** by category, difficulty, cooking time
 - **Recipe ratings and reviews** system
 - **PDF recipe card downloads** with professional formatting
@@ -164,7 +164,7 @@ BEfood/
 The application uses the following main tables:
 - `users` - User accounts and profiles
 - `recipes` - Recipe information
-- `categories` - Recipe categories
+- `dietary_preferences` - Recipe dietary preferences
 - `cuisine_types` - Cuisine types
 - `ingredients` - Ingredient database
 - `recipe_ingredients` - Recipe-ingredient relationships

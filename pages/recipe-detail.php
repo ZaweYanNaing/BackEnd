@@ -1,6 +1,7 @@
 <?php
 $pageTitle = 'Recipe Detail - FoodFusion';
 include 'includes/header.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 $recipeId = $_GET['id'] ?? 0;
 $recipe = getRecipeById($recipeId);

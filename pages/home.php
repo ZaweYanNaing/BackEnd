@@ -1,6 +1,7 @@
 <?php
 $pageTitle = 'Home - FoodFusion';
 include 'includes/header.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 // Get recent recipes
 $recentRecipes = getAllRecipes(['limit' => 6]);

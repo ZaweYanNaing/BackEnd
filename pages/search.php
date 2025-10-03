@@ -1,6 +1,7 @@
 <?php
 $pageTitle = 'Search - FoodFusion';
 include 'includes/header.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 $query = $_GET['q'] ?? '';
 $category = $_GET['category'] ?? '';
@@ -64,10 +65,10 @@ $categories = getCategories();
                 <!-- Advanced Filters -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Dietary Preference</label>
                         <select name="category" id="category" 
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <option value="">All Categories</option>
+                            <option value="">All Preferences</option>
                             <?php foreach ($categories as $cat): ?>
                             <option value="<?php echo $cat['id']; ?>" <?php echo $category == $cat['id'] ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($cat['name']); ?>

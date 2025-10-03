@@ -57,7 +57,7 @@ function getAllRecipes($filters = []) {
     $params = [];
     
     if (!empty($filters['category'])) {
-        $whereClause .= " AND r.id IN (SELECT recipe_id FROM recipe_categories WHERE category_id = ?)";
+        $whereClause .= " AND r.id IN (SELECT recipe_id FROM recipe_dietary_preferences WHERE category_id = ?)";
         $params[] = $filters['category'];
     }
     
@@ -84,8 +84,8 @@ function getAllRecipes($filters = []) {
               COALESCE(rl.total_likes, 0) as total_likes
               FROM recipes r 
               LEFT JOIN users u ON r.user_id = u.id
-              LEFT JOIN recipe_categories rc ON r.id = rc.recipe_id
-              LEFT JOIN categories c ON rc.category_id = c.id
+              LEFT JOIN recipe_dietary_preferences rc ON r.id = rc.recipe_id
+              LEFT JOIN dietary_preferences c ON rc.category_id = c.id
               LEFT JOIN cuisine_types ct ON r.cuisine_type_id = ct.id
               LEFT JOIN (
                   SELECT recipe_id, 
@@ -130,8 +130,8 @@ function getRecipeById($id) {
                          GROUP_CONCAT(DISTINCT CONCAT(i.name, ':', ri.quantity, ' ', ri.unit) SEPARATOR '|') as ingredients
                   FROM recipes r 
                   LEFT JOIN users u ON r.user_id = u.id
-                  LEFT JOIN recipe_categories rc ON r.id = rc.recipe_id
-                  LEFT JOIN categories c ON rc.category_id = c.id
+                  LEFT JOIN recipe_dietary_preferences rc ON r.id = rc.recipe_id
+                  LEFT JOIN dietary_preferences c ON rc.category_id = c.id
                   LEFT JOIN cuisine_types ct ON r.cuisine_type_id = ct.id
                   LEFT JOIN recipe_ingredients ri ON r.id = ri.recipe_id
                   LEFT JOIN ingredients i ON ri.ingredient_id = i.id
@@ -196,7 +196,7 @@ function createRecipe($data) {
         // Handle categories
         if (!empty($data['categories'])) {
             foreach ($data['categories'] as $categoryId) {
-                $stmt = $db->prepare("INSERT INTO recipe_categories (recipe_id, category_id) VALUES (?, ?)");
+                $stmt = $db->prepare("INSERT INTO recipe_dietary_preferences (recipe_id, category_id) VALUES (?, ?)");
                 $stmt->execute([$recipeId, $categoryId]);
             }
         }
@@ -245,13 +245,13 @@ function updateRecipe($data) {
         $recipeId = $data['id'];
         
         // Remove existing categories
-        $stmt = $db->prepare("DELETE FROM recipe_categories WHERE recipe_id = ?");
+        $stmt = $db->prepare("DELETE FROM recipe_dietary_preferences WHERE recipe_id = ?");
         $stmt->execute([$recipeId]);
         
         // Add new categories
         if (!empty($data['categories'])) {
             foreach ($data['categories'] as $categoryId) {
-                $stmt = $db->prepare("INSERT INTO recipe_categories (recipe_id, category_id) VALUES (?, ?)");
+                $stmt = $db->prepare("INSERT INTO recipe_dietary_preferences (recipe_id, category_id) VALUES (?, ?)");
                 $stmt->execute([$recipeId, $categoryId]);
             }
         }
@@ -296,7 +296,7 @@ function deleteRecipe($id, $userId) {
         $db->beginTransaction();
         
         // Delete related records
-        $stmt = $db->prepare("DELETE FROM recipe_categories WHERE recipe_id = ?");
+        $stmt = $db->prepare("DELETE FROM recipe_dietary_preferences WHERE recipe_id = ?");
         $stmt->execute([$id]);
         
         $stmt = $db->prepare("DELETE FROM recipe_ingredients WHERE recipe_id = ?");
@@ -336,7 +336,7 @@ function searchRecipes($query, $filters = []) {
     }
     
     if (!empty($filters['category'])) {
-        $whereClause .= " AND r.id IN (SELECT recipe_id FROM recipe_categories WHERE category_id = ?)";
+        $whereClause .= " AND r.id IN (SELECT recipe_id FROM recipe_dietary_preferences WHERE category_id = ?)";
         $params[] = $filters['category'];
     }
     
@@ -358,8 +358,8 @@ function searchRecipes($query, $filters = []) {
               COALESCE(rl.total_likes, 0) as total_likes
               FROM recipes r 
               LEFT JOIN users u ON r.user_id = u.id
-              LEFT JOIN recipe_categories rc ON r.id = rc.recipe_id
-              LEFT JOIN categories c ON rc.category_id = c.id
+              LEFT JOIN recipe_dietary_preferences rc ON r.id = rc.recipe_id
+              LEFT JOIN dietary_preferences c ON rc.category_id = c.id
               LEFT JOIN cuisine_types ct ON r.cuisine_type_id = ct.id
               LEFT JOIN (
                   SELECT recipe_id, 
@@ -417,7 +417,7 @@ function getOrCreateIngredient($name) {
 
 function getCategories() {
     global $db;
-    $stmt = $db->prepare("SELECT * FROM categories ORDER BY name");
+    $stmt = $db->prepare("SELECT * FROM dietary_preferences ORDER BY name");
     $stmt->execute();
     return $stmt->fetchAll();
 }

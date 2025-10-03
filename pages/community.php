@@ -1,6 +1,7 @@
 <?php
 $pageTitle = 'Community - FoodFusion';
 include 'includes/header.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 // Get community stats and tips
 $totalUsers = 0;

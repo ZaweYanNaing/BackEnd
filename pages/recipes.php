@@ -1,6 +1,7 @@
 <?php
 $pageTitle = 'Recipes - FoodFusion';
 include 'includes/header.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 // Get filters from URL
 $filters = [];
@@ -12,7 +13,7 @@ $filters['user_id'] = $_GET['user_id'] ?? '';
 // Get recipes with filters
 $recipes = getAllRecipes($filters);
 
-// Get categories for filter dropdown
+// Get dietary preferences for filter dropdown
 $categories = getCategories();
 $cuisineTypes = getCuisineTypes();
 ?>
@@ -47,9 +48,9 @@ $cuisineTypes = getCuisineTypes();
                 <input type="hidden" name="page" value="recipes">
                 
                 <div>
-                    <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Dietary Preference</label>
                     <select name="category" id="category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                        <option value="">All Categories</option>
+                        <option value="">All Preferences</option>
                         <?php foreach ($categories as $category): ?>
                         <option value="<?php echo $category['id']; ?>" <?php echo $filters['category'] == $category['id'] ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars($category['name']); ?>
@@ -161,16 +162,16 @@ $cuisineTypes = getCuisineTypes();
                         </div>
                     </div>
                     
-                    <!-- Categories -->
+                    <!-- Dietary Preferences -->
                     <?php if (!empty($recipe['categories'])): ?>
                     <div class="flex flex-wrap gap-1 mb-4">
                         <?php foreach (array_slice($recipe['categories'], 0, 3) as $category): ?>
-                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
                             <?php echo htmlspecialchars($category); ?>
                         </span>
                         <?php endforeach; ?>
                         <?php if (count($recipe['categories']) > 3): ?>
-                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
                             +<?php echo count($recipe['categories']) - 3; ?> more
                         </span>
                         <?php endif; ?>

@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS users (
     INDEX idx_users_lockout (email, account_locked_until)
 );
 
--- Create categories table
-CREATE TABLE IF NOT EXISTS categories (
+-- Create dietary_preferences table
+CREATE TABLE IF NOT EXISTS dietary_preferences (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
@@ -56,13 +56,13 @@ CREATE TABLE recipes (
     FOREIGN KEY (cuisine_type_id) REFERENCES cuisine_types(id) ON DELETE SET NULL
 );
 
--- Create recipe_categories table for many-to-many relationship
-CREATE TABLE IF NOT EXISTS recipe_categories (
+-- Create recipe_dietary_preferences table for many-to-many relationship
+CREATE TABLE IF NOT EXISTS recipe_dietary_preferences (
     recipe_id INT,
     category_id INT,
     PRIMARY KEY (recipe_id, category_id),
     FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+    FOREIGN KEY (category_id) REFERENCES dietary_preferences(id) ON DELETE CASCADE
 );
 
 -- Create ingredients table
@@ -182,7 +182,7 @@ CREATE TABLE IF NOT EXISTS tip_likes (
 );
 
 -- Insert sample data
-INSERT INTO categories (name, description) VALUES
+INSERT INTO dietary_preferences (name, description) VALUES
 ('Breakfast', 'Morning meals and brunch recipes'),
 ('Lunch', 'Midday meal recipes'),
 ('Dinner', 'Evening meal recipes'),
@@ -255,8 +255,8 @@ INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit) VALUES
 (2, 10, '1', 'tablespoon'), -- Ginger
 (2, 11, '2', 'tablespoons'); -- Vegetable oil
 
--- Insert sample recipe categories
-INSERT INTO recipe_categories (recipe_id, category_id) VALUES
+-- Insert sample recipe dietary preferences
+INSERT INTO recipe_dietary_preferences (recipe_id, category_id) VALUES
 (1, 1), -- Pancakes - Breakfast
 (1, 9), -- Pancakes - Quick & Easy
 (2, 2), -- Chicken Stir Fry - Lunch

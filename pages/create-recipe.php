@@ -1,6 +1,7 @@
 <?php
 $pageTitle = 'Create Recipe - FoodFusion';
 include 'includes/header.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 // Require login
 requireLogin();
@@ -83,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif (empty($ingredients)) {
         $error = 'At least one ingredient is required.';
     } elseif (empty($categories)) {
-        $error = 'Please select at least one category.';
+        $error = 'Please select at least one dietary preference.';
     } elseif (empty($cuisine_type)) {
         $error = 'Please select a cuisine type.';
     } elseif (empty($cooking_time) || !is_numeric($cooking_time) || $cooking_time <= 0) {
@@ -152,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Get categories and cuisine types for form
+// Get dietary preferences and cuisine types for form
 $categories = getCategories();
 $cuisineTypes = getCuisineTypes();
 ?>
@@ -268,12 +269,12 @@ $cuisineTypes = getCuisineTypes();
                     </div>
                 </div>
                 
-                <!-- Categories and Cuisine -->
+                <!-- Dietary Preferences and Cuisine -->
                 <div class="space-y-6">
-                    <h2 class="text-xl font-semibold text-gray-900">Categories & Cuisine</h2>
+                    <h2 class="text-xl font-semibold text-gray-900">Dietary Preferences & Cuisine</h2>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Categories</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Dietary Preferences</label>
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                             <?php foreach ($categories as $category): ?>
                             <label class="flex items-center space-x-2 cursor-pointer">
@@ -491,10 +492,10 @@ document.getElementById('recipe_video').addEventListener('change', function(e) {
 
 // Form validation
 function validateForm() {
-    // Check if at least one category is selected
+    // Check if at least one dietary preference is selected
     const categoryCheckboxes = document.querySelectorAll('input[name="categories[]"]:checked');
     if (categoryCheckboxes.length === 0) {
-        alert('Please select at least one category.');
+        alert('Please select at least one dietary preference.');
         return false;
     }
     
