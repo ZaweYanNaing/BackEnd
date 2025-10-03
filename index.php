@@ -72,6 +72,12 @@ switch ($page) {
     case 'search':
         include 'pages/search.php';
         break;
+    case 'privacy':
+        include 'pages/privacy.php';
+        break;
+    case 'terms':
+        include 'pages/terms.php';
+        break;
     case '404':
         include 'pages/404.php';
         break;
