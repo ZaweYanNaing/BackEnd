@@ -1,4 +1,4 @@
-        </main>
+`        </main>
         
         <!-- Footer -->
         <footer class="bg-gray-800 text-white mt-16">
@@ -18,17 +18,23 @@
                             and connect with fellow cooking enthusiasts.
                         </p>
                         <div class="flex space-x-4">
-                            <a href="#" class="text-gray-400 hover:text-white">
+                            <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">
                                 <i class="fab fa-facebook text-xl"></i>
                             </a>
-                            <a href="#" class="text-gray-400 hover:text-white">
+                            <a href="https://www.twitter.com/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">
                                 <i class="fab fa-twitter text-xl"></i>
                             </a>
-                            <a href="#" class="text-gray-400 hover:text-white">
+                            <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">
                                 <i class="fab fa-instagram text-xl"></i>
                             </a>
-                            <a href="#" class="text-gray-400 hover:text-white">
+                            <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">
                                 <i class="fab fa-youtube text-xl"></i>
+                            </a>
+                            <a href="https://www.pinterest.com/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fab fa-pinterest text-xl"></i>
+                            </a>
+                            <a href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fab fa-tiktok text-xl"></i>
                             </a>
                         </div>
                     </div>
@@ -48,10 +54,10 @@
                     <div>
                         <h3 class="text-lg font-semibold mb-4">Support</h3>
                         <ul class="space-y-2">
-                            <li><a href="#" class="text-gray-300 hover:text-white">Help Center</a></li>
-                            <li><a href="#" class="text-gray-300 hover:text-white">Contact Us</a></li>
-                            <li><a href="#" class="text-gray-300 hover:text-white">Privacy Policy</a></li>
-                            <li><a href="#" class="text-gray-300 hover:text-white">Terms of Service</a></li>
+                            <li><a href="index.php?page=contact" class="text-gray-300 hover:text-white transition-colors">Help Center</a></li>
+                            <li><a href="index.php?page=contact" class="text-gray-300 hover:text-white transition-colors">Contact Us</a></li>
+                            <li><a href="index.php?page=privacy" class="text-gray-300 hover:text-white transition-colors">Privacy Policy</a></li>
+                            <li><a href="index.php?page=terms" class="text-gray-300 hover:text-white transition-colors">Terms of Service</a></li>
                         </ul>
                     </div>
                 </div>
