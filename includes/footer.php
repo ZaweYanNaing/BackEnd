@@ -58,6 +58,7 @@
                             <li><a href="index.php?page=contact" class="text-gray-300 hover:text-white transition-colors">Contact Us</a></li>
                             <li><a href="index.php?page=privacy" class="text-gray-300 hover:text-white transition-colors">Privacy Policy</a></li>
                             <li><a href="index.php?page=terms" class="text-gray-300 hover:text-white transition-colors">Terms of Service</a></li>
+                            <li><a href="index.php?page=cookies" class="text-gray-300 hover:text-white transition-colors">Cookie Policy</a></li>
                         </ul>
                     </div>
                 </div>

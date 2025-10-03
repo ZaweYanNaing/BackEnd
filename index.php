@@ -78,6 +78,9 @@ switch ($page) {
     case 'terms':
         include 'pages/terms.php';
         break;
+    case 'cookies':
+        include 'pages/cookies.php';
+        break;
     case '404':
         include 'pages/404.php';
         break;

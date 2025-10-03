@@ -11,7 +11,7 @@
                 <p class="text-sm text-gray-300">
                     We use cookies to enhance your experience, analyze site traffic, and personalize content. 
                     By clicking "Accept All", you consent to our use of cookies. 
-                    <a href="index.php?page=privacy" class="text-green-400 hover:text-green-500 underline">Learn more</a>
+                    <a href="index.php?page=cookies" class="text-green-400 hover:text-green-500 underline">Learn more</a>
                 </p>
             </div>
             
